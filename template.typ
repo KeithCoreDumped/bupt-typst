@@ -344,10 +344,12 @@
   }
 
   // 引用
+  show cite: set text(font: FontEnglish)
   show cite: it => {
-    text(font: FontEnglish, it)
-    h(0em, weak: true) // 移除@cite的多余空格
+    show "–": "-"
+    it
   }
+  // 恢复@cite的多余空格，恢复字体为英文字体
 
   // 页眉页脚
   set page(
