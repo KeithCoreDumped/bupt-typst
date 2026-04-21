@@ -346,10 +346,12 @@
   }
 
   // 引用
+  show cite: set text(font: FontEnglish)
   show cite: it => {
-    text(font: FontEnglish, it)
-    h(0em, weak: true) // 移除@cite的多余空格
+    show "–": "-"
+    it
   }
+  // 保留 Typst 对连续 citation 的聚合，仅将范围连接符改为短横线。
 
   // 页眉页脚
   set page(
