@@ -116,9 +116,10 @@
   FontEnglish,
   "SimHei",
 )
+#let FontSongCN = "SimSun"
 #let FontSong = (
   FontEnglish,
-  "SimSun",
+  FontSongCN,
 )
 #let FontKai = (
   FontEnglish,
@@ -351,7 +352,7 @@
     show "–": "-"
     it
   }
-  // 保留 Typst 对连续 citation 的聚合，仅将范围连接符改为短横线。
+  // 恢复@cite的多余空格，恢复字体为英文字体
 
   // 页眉页脚
   set page(
@@ -367,8 +368,8 @@
     footer: context [
       #pad(top:-13pt)[
         #align(center)[
-          // 正文中数字是times new roman，页码数字使用宋体
-          #text(font: "simsun", size: FONTSIZE.XiaoWu)[
+          // 页码数字使用宋体
+          #text(font: FontSongCN, size: FONTSIZE.XiaoWu)[
             #counter(page).display()
           ]
         ]
@@ -457,6 +458,7 @@
         // 固定宽度盒子，避免撑大
         #box(width: width)[
           #align(left)[
+            #set par(first-line-indent: 0em) // 移除表注的首行缩进
             #text(size: 0.9em)[注：#note]
           ]
         ]
