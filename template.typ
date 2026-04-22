@@ -116,9 +116,10 @@
   FontEnglish,
   "SimHei",
 )
+#let FontSongCN = "SimSun"
 #let FontSong = (
   FontEnglish,
-  "SimSun",
+  FontSongCN,
 )
 #let FontKai = (
   FontEnglish,
@@ -169,14 +170,16 @@
   align(center)[
     #set text(font: FontHeiCN, weight: "bold")
     #v(0.6cm)
-    #text(size: FONTSIZE.SanHao, titleZH) \ \ \ \
-    #text(size: FONTSIZE.XiaoSan, "摘要") \ \
+    #text(size: FONTSIZE.SanHao, titleZH)
+    #v(1.4cm)
+    #text(size: FONTSIZE.XiaoSan, "摘要")
+    #v(0.45cm)
   ]
 
   set par(
     first-line-indent: (all: true, amount: 2em), // 首行缩进
-    leading: 0.75em, // 段内行间距为1.25倍，不等于 1.25em
-    spacing: 0.75em, // 段间距同样为1.25倍，不等于 1.25em
+    leading: 0.92em, // 段内行间距为1.25倍，不等于 1.25em
+    spacing: 0.92em, // 段间距同样为1.25倍，不等于 1.25em
     justify: true, // 两端对齐
   )
   abstractZH
@@ -231,7 +234,7 @@
   counter(page).update(1)
 
   show outline: it => context {
-    set par(first-line-indent: 0em, leading: 0.9em)
+    set par(first-line-indent: 0em, leading: 0.85em)
 
     align(center)[
       #text(font: FontHeiCN, weight: "bold", /*tracking: 2em, */ size: FONTSIZE.SanHao, [目录\ \ ]) // 2026模板移除了标题的2em空格
@@ -240,7 +243,7 @@
     let chapterCounter = 1
     let sectionCounter = 1
     let subsectionCounter = 1
-
+    v(1cm)
     let headingList = query(heading)
     for i in headingList {
       link(i.location(), {
@@ -307,7 +310,7 @@
 
         align(center)[
           #grid(
-            rows: 1em,
+            rows: 0.95em,
             row-gutter: 0em,
             columns: 1fr,
             [],
@@ -328,7 +331,7 @@
         )
       } else {
         grid(
-          rows: (0.5em, 1em, 0.5em),
+          rows: (0.15em, 1em, 0.85em),
           columns: 1fr,
           [],
           fakebold[ // 黑体序号使用伪粗体
@@ -363,9 +366,12 @@
       ]
     ],
     footer: context [
-      #align(center)[
-        #text(font: FontEnglish, size: FONTSIZE.XiaoWu)[
-          #counter(page).display()
+      #pad(top:-13pt)[
+        #align(center)[
+          // 页码数字使用宋体
+          #text(font: FontSongCN, size: FONTSIZE.XiaoWu)[
+            #counter(page).display()
+          ]
         ]
       ]
     ],
@@ -423,7 +429,7 @@
     stroke: (x, y) => if y == 0 {
       (top: 0.5pt, bottom: 0.5pt) // 首行顶/底分割线
     },
-    inset: 8pt,
+    inset: 5.8pt,
   )
   set table.hline(stroke: 0.5pt)
 
@@ -452,6 +458,7 @@
         // 固定宽度盒子，避免撑大
         #box(width: width)[
           #align(left)[
+            #set par(first-line-indent: 0em) // 移除表注的首行缩进
             #text(size: 0.9em)[注：#note]
           ]
         ]
@@ -476,6 +483,35 @@
   )
 }
 
+// 仅用于“参考文献”标题：单独减小上方留白
+#let bibliography_heading(
+  title,
+) = {
+  grid(
+    columns: 1fr,
+    row-gutter: 0.2em,
+    rows: (0.3em, 1em, 1em),
+    [], [#title], []
+  )
+}
+
+// 仅用于“致谢/附录”标题：减小上方留白，保持下方留白不变
+#let backmatter_heading(
+  title,
+) = {
+  grid(
+    columns: 1fr,
+    row-gutter: 0.2em,
+    rows: (0.3em, 1em, 1em),
+    [], [#title], []
+  )
+}
+
+#let render_backmatter_title(title) = align(center)[
+  #set text(font: FontHeiCN, size: FONTSIZE.SanHao)
+  #backmatter_heading([#title])
+]
+
 // 附录部分
 #let Appendix(
   bibliographyFile: none,
@@ -484,21 +520,25 @@
   show heading: it => context {
     set par(first-line-indent: 0em)
 
-    let levels = counter(heading).at(here())
-
     if it.level == 1 {
-      align(center)[
-        #text(font: FontHeiCN, size: FONTSIZE.SanHao, it.body)
-      ]
+      render_backmatter_title(it.body)
     } else if it.level == 2 {
-      text(size: FONTSIZE.SiHao, it.body)
+      text(
+        font: FontSong,
+        weight: "regular",
+        size: FONTSIZE.XiaoSi,
+        it.body,
+      )
     }
   }
 
   // 参考文献
   if bibliographyFile != none {
     pagebreak()
-    primary_heading([= 参考文献])
+    align(center)[
+      #set text(font: FontHeiCN, size: FONTSIZE.SanHao)
+      #bibliography_heading([参考文献])
+    ]
 
     set text(
       font: FontSong,

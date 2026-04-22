@@ -94,8 +94,8 @@
 
 #figure(
   table(
-    columns: (auto, auto, auto),
-    inset: (x: 3em, y: 5pt),
+    columns: (10em, 10em, 10em),
+    // inset: (x: 3em, y: 5pt),
     [量的名称], [单位名称], [单位符号],
     [长度], [米], [m],
     [质量], [千克(公斤)], [kg],
@@ -111,7 +111,7 @@
 $
   ("d"x)/("d"t)=K(1-x)
 $
-
+\ // 续行取消首行缩进
 其中，$K$ 正文文字正文。
 
 正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文正文文字正文文字正文文字正文文字。
@@ -132,6 +132,7 @@ $
   supplement: [续表],
   table(
     columns: (1fr, 1fr, 1fr, 1fr, 1fr),
+    [XXXX], [XXXX], [XXXX], [XXXX], [XXXX],
     [XXXX], [XXXX], [XXXX], [XXXX], [XXXX],
     [XXXX], [XXXX], [XXXX], [XXXX], [XXXX],
     [XXXX], [XXXX], [XXXX], [XXXX], [XXXX],
@@ -199,29 +200,21 @@ $
 )
 
 #pagebreak()
-#primary_heading([= 致谢])
-#v(0.8em)
+= 致谢
 
 文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文文本文本文本。
 
 文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文文本文本文本。
 
 #pagebreak()
-#primary_heading([= 附录])
-#v(0.8em)
-
-#set heading(outlined: false)
-#show heading.where(level: 2): it => [
-  #set par(first-line-indent: 0em)
-  #set text(font: FontSong, weight: "regular", size: FONTSIZE.XiaoSi)
-  #it.body
-]
+= 附录
 
 == 附录 1
 
 文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文文本文本文本。
 
-#v(1em)
+\ \
+
 == 附录 2
 
 论文的附录依序编排为附录 1，附录 2……。附录中的图表公式另编排序号，与正文分开。
