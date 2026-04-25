@@ -129,6 +129,50 @@
 
   pagebreak(to: "odd", weak: true)
 
+  // 标题样式
+  set heading(numbering: numbly(
+    "第{1:一}章", // use {level:format} to specify the format
+    "{1}.{2}", // if format is not specified, arabic numbers will be used
+    "{1}.{2}.{3}", // here, we only want the 3rd level
+  ))
+  show heading: it => {
+    if it.level == 1 {
+      pagebreak(to: "odd", weak: true) // 大标题奇数页
+    }
+    if it.level <= 3 {
+      let idx = it.level - 1
+      let size = (FONTSIZE.三号, FONTSIZE.四号, FONTSIZE.小四).at(idx)
+      let above = (0pt, 1.5em, 1.5em).at(idx)
+      let below = (2.8em, 1.5em, 1.5em).at(idx)
+      let indent = (0em, 0em, 2em).at(idx)
+      let number = if it.numbering != none {
+        numbering(it.numbering, ..counter(heading).at(it.location()))
+      }
+      set text(
+        weight: "bold",
+        size: size,
+      )
+      block(
+        above: above,
+        below: below,
+        pad(
+          left: indent,
+          {
+            set text(font: FontHeiCN)
+            number
+            h(0.5em)
+            set text(font: FontHei)
+            it.body
+          },
+        ),
+      )
+    } else {
+      it
+    }
+  }
+
+  show heading.where(level: 1): set align(center)
+
   // 目录
   set page(
     numbering: "I",
@@ -143,14 +187,6 @@
     },
   )
   counter(page).update(1)
-
-  set heading(numbering: numbly(
-    "第{1:一}章", // use {level:format} to specify the format
-    "{1}.{2}", // if format is not specified, arabic numbers will be used
-    "{1}.{2}.{3}", // here, we only want the 3rd level
-  ))
-
-  show heading.where(level: 1): set align(center)
 
   align(center)[
     #text(font: FontHeiCN, weight: "bold", /*tracking: 2em, */ size: FONTSIZE.三号, [目录\ \ ]) // 2026模板移除了标题的2em空格
@@ -178,7 +214,8 @@
         )
       } else {
         h(indent)
-        counter(heading).at(loc).map(s => str(s)).join(".")
+        numbering(elem.numbering, ..counter(heading).at(loc))
+        h(0.5em)
         body
       }
 
@@ -445,65 +482,12 @@
   )
 }
 
-// 仅用于“参考文献”标题：单独减小上方留白
-// #let bibliography_heading(
-//   title,
-// ) = {
-//   grid(
-//     columns: 1fr,
-//     row-gutter: 0.2em,
-//     rows: (0.3em, 1em, 1em),
-//     [], [#title], []
-//   )
-// }
-
-// 仅用于“致谢/附录”标题：减小上方留白，保持下方留白不变
-#let backmatter_heading(
-  title,
-) = {
-  grid(
-    columns: 1fr,
-    row-gutter: 0.2em,
-    rows: (0.3em, 1em, 1em),
-    [], [#title], []
-  )
-}
-
-#let render_backmatter_title(title) = align(center)[
-  #set text(font: FontHeiCN, size: FONTSIZE.三号)
-  #backmatter_heading([#title])
-]
-
 // 附录部分
 #let Appendix(
   bibliographyFile: none,
   body,
 ) = {
   set heading(numbering: none)
-  show heading.where(level: i => i > 2): set text(
-    font: FontSong,
-    weight: "regular",
-    size: FONTSIZE.小四,
-  )
-  show heading.where(level: 1): it => {
-    pagebreak(to: "odd", weak: true)
-    it
-  }
-
-  // show heading: it => context {
-  //   // set par(first-line-indent: 0em)
-
-  //   if it.level == 1 {
-  //     render_backmatter_title(it.body)
-  //   } else if it.level == 2 {
-  //     text(
-  //       font: FontSong,
-  //       weight: "regular",
-  //       size: FONTSIZE.小四,
-  //       it.body,
-  //     )
-  //   }
-  // }
 
   // 参考文献
   if bibliographyFile != none {
@@ -532,3 +516,19 @@
 
 // 表注
 #let tablenote(body) = metadata((role: "tablenote", body: body))
+
+#let Achevements(body) = {
+  set enum(numbering: "[1]")
+  set heading(outlined: false)
+  show heading.where(level: 2): it => {
+    set par(first-line-indent: 0em)
+    set text(font: FontHeiCN, size: FONTSIZE.四号, weight: "bold")
+    block(
+      above: 1.5em,
+      below: 1.5em,
+      it.body,
+    )
+  }
+  body
+}
+
