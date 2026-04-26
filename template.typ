@@ -105,7 +105,7 @@
 
   // 中文摘要
   align(center)[
-    #set text(font: FontHeiCN, weight: "bold")
+    #set text(font: FontHei, weight: "bold")
     #v(0.6cm)
     #text(size: FONTSIZE.三号, titleZH)
     #v(1.4cm)
@@ -129,7 +129,7 @@
     h(2em) + "关键词" + h(0.5em),
   )
   text(size: FONTSIZE.小四, keywordsZH.join(h(1em)))
-  pagebreak()
+  pagebreak(to: "odd", weak: true)
 
   // 英文摘要
   align(center)[
