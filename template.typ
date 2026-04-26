@@ -1,6 +1,7 @@
 #import "@preview/itemize:0.2.0" as el
 #import "@preview/cuti:0.4.0": fakebold, show-cn-fakebold
 #import "@preview/numbly:0.1.0": numbly
+#import "@preview/algo:0.3.6": algo, code, comment, d, i
 
 #let FONTSIZE = (
   三号: 16pt,
@@ -38,6 +39,7 @@
 #let tableCounter = counter("Table")
 #let figureCounter = counter("Figure")
 #let equationCounter = counter("Equation")
+#let algorithmCounter = counter("Algorithm")
 
 #let BUPTBachelorThesis(
   titleZH: "",
@@ -141,6 +143,7 @@
       tableCounter.update(1)
       figureCounter.update(1)
       equationCounter.update(1)
+      algorithmCounter.update(1)
     }
     if it.level <= 3 {
       let idx = it.level - 1
@@ -359,6 +362,39 @@
     }
   }
 
+  // 算法
+  show figure.where(kind: "algorithm"): set figure(
+    supplement: [算法],
+
+    numbering: it => {
+      let chapterLevel = counter(heading).get().first()
+      str(chapterLevel) + "-" + algorithmCounter.display() // 算法序
+    },
+  )
+  show figure.where(kind: "algorithm"): set figure.caption(
+    separator: h(1em),
+  )
+  show figure.where(kind: "algorithm"): it => {
+    algorithmCounter.step() // 计数器递增
+    it
+  }
+  show figure.caption.where(kind: "algorithm"): []
+  show figure.where(kind: "algorithm"): it => {
+    set table.cell(align: left)
+    table(
+      columns: (1fr,),
+      {
+        let chapterLevel = counter(heading).get().first()
+        it.supplement
+        str(chapterLevel) + "-" + algorithmCounter.display()
+        h(0.5em)
+        it.caption.body
+      },
+      it.body,
+      table.hline(),
+    )
+  }
+
   // 正文
   body
 }
@@ -397,6 +433,14 @@
 
 // 表注
 #let tablenote(body) = metadata((role: "tablenote", body: body))
+
+#let algo = algo.with(
+  indent-size: 1.5em,
+  line-numbers: false,
+  stroke: none,
+  fill: none,
+  block-align: left,
+)
 
 #let Achevements(body) = {
   set enum(numbering: "[1]")
