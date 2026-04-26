@@ -218,30 +218,30 @@ $
     #let comment = comment.with(inline: true)
     #let ii = i + i
     #let dd = d + d
-    输入：$S_"raw"$，原始物品文本语料#ii \
+    输入：$scr(S)_"raw"$，原始物品文本语料#ii \
     $n^*$，初始化簇中心数 \
     $d$，码字嵌入维度#dd \
 
     输出：$C = {C_1, C_2, C_3}$，三层语义码本#ii \
-    $S_"sid"$，物品语义标签集#dd \
+    $scr(S)_"sid"$，物品语义标签集#dd \
 
     #comment[语义嵌入编码（使用 Sentence-T5 预训练编码器）] \
-    $op("Encoder")(S_"raw") = S_"emb" in bold(R)^(n times d)$ \
+    $op("Encoder")(scr(S)_"raw") = scr(S)_"emb" in bold(R)^(n times d)$ \
 
     #comment[初始化] \
-    $pi = 1 / K$，$mu = op("UniformSample")(S_"emb", n^*)$，$Sigma = I$ \
-    $"res"_1 = S_"emb"$，$C = emptyset$，$S_"sid" = emptyset$ \
+    $pi = 1 / K$，$mu = op("UniformSample")(scr(S)_"emb", n^*)$，$Sigma = I$ \
+    $"res"_1 = scr(S)_"emb"$，$C = emptyset$，$scr(S)_"sid" = emptyset$ \
 
     #comment[物品语义标签构建] \
-    $H = {}$，$c = 0$ \
+    $cal(H) = {}$，$c = 0$ \
     for $i$ in $n$ #i \
     $op("sid")(i) = [z_(i 1), z_(i 2), z_(i 3)]$ \
-    查询 $H$ 中 $op("sid")(i)$ 重复次数 \
+    查询 $cal(H)$ 中 $op("sid")(i)$ 重复次数 \
     若未出现：$c = 0$；若已出现：$c =$已出现次数 \
     $op("sid")(i).op("append")(z_l)$ \
-    $H[op("sid")(i)] = c + 1$ #d\
+    $cal(H)[op("sid")(i)] = c + 1$ #d\
     end \
-    $S_"sid" = {op("sid")(1), op("sid")(2), dots, op("sid")(n)}$
+    $scr(S)_"sid" = {op("sid")(1), op("sid")(2), dots, op("sid")(n)}$
   ],
 )<myalgoxxx>
 
@@ -267,11 +267,11 @@ $
 
 评估指标：针对每种条件类型，实验遵循既定协议，选取了 1000 个不同的条件样本进行评估。值得注意的是，基线模型通常采用基于条件表示的 l_2 损失来衡量对齐程度。此外，本节引入了任务自适应的评估指标：对于分割图引导，报告像素准确率（Pixel Accuracy, PA）；对于文本引导生成，则计算 CLIP 得分。各指标的详细定义如下：
 
-PA 用于评估分割图引导生成任务，计算生成图像经过语义分割模型预测的类别与目标分割图的类别之间，在像素级别上的准确率。该指标反映了生成图像在空间布局上满足条件约束的程度，计算公式为：
+PA 用于评估分割图引导生成任务，计算生成图像经过语义分割模型预测的类别与目标分割图的类别之间，在像素级别上的准确率。该指标反映了生成图像在空间布局上满足条件约束的程度，计算公式为/*@myequation*/：
 
 $
   "PA" = (x_i dot Z_t) / (norm(x_i) norm(Z_t))
-$
+$<myequation>
 \ 其中，$s_i$ 表示第 $i$ 个图像块与文本语义之间的相似度得分。
 
 CLIP 得分（CLIP）用于评价文本引导的生成质量。文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字正文文字。

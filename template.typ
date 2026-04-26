@@ -62,17 +62,40 @@
 
   // 数学公式
   set math.equation(
-    numbering: it => context [
-      // 改用numbering实现，可在正文 @label
-      #let chapterLevel = counter(heading).at(here()).at(0)
-      #set text(font: FontSong)
-      #h(0em, weak: true)
-      (#chapterLevel\-#equationCounter.display())
-      #h(0em, weak: true)
-      #equationCounter.step()
-    ],
-    supplement: [], // 取消自带的 supplement "Equation"
+    numbering: none,
+    supplement: none, // 取消自带的 supplement "Equation"
   )
+  show math.equation.where(block: true): set block(
+    above: 0em,
+    below: 0em,
+  )
+  show math.equation.where(block: true): it => block(
+    above: 1.5em,
+    below: 0em,
+    width: 100%,
+    {
+      // 公式编号在下一行右侧
+      it
+      align(right, {
+        let chapterLevel = counter(heading).at(here()).at(0)
+        set text(font: FontSong)
+        [(#chapterLevel\-#equationCounter.display())]
+        equationCounter.step()
+      })
+    },
+  )
+  // @equation => 式4-1
+  show ref: it => {
+    let el = it.element
+    if el != none and el.func() == math.equation {
+      let loc = el.location()
+      let chapter = counter(heading).at(loc).first()
+      let eq-num = equationCounter.at(loc).first()
+      link(loc)[式 #chapter\-#eq-num]
+    } else {
+      it
+    }
+  }
 
   // 代码
   show raw.where(block: true): it => {
