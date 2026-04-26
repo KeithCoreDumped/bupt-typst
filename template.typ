@@ -54,7 +54,10 @@
   set page(paper: "a4", margin: 2.5cm)
   set text(font: FontSong, weight: "regular", size: FONTSIZE.小四)
 
-  show: el.default-enum-list // 有序列表与内容基线对齐
+  show: el.paragraph-enum-list.with(
+    indent: 0em,
+    label-indent: 2em,
+  ) // 有序列表与内容基线对齐，首行/悬挂缩进对齐word模板
   show: show-cn-fakebold // 中文伪粗体
 
   // 数学公式
@@ -135,7 +138,8 @@
   set heading(numbering: numbly(
     "第{1:一}章", // use {level:format} to specify the format
     "{1}.{2}", // if format is not specified, arabic numbers will be used
-    "{1}.{2}.{3}", // here, we only want the 3rd level
+    "{1}.{2}.{3}",
+    "{1}.{2}.{3}.{4}", // here, we only want the 4th level
   ))
   show heading: it => {
     if it.level == 1 {
@@ -145,18 +149,19 @@
       equationCounter.update(1)
       algorithmCounter.update(1)
     }
-    if it.level <= 3 {
+    if it.level <= 4 {
       let idx = it.level - 1
-      let size = (FONTSIZE.三号, FONTSIZE.四号, FONTSIZE.小四).at(idx)
-      let above = (0pt, 1.5em, 1.5em).at(idx)
-      let below = (2.8em, 1.5em, 1.5em).at(idx)
-      let indent = (0em, 0em, 2em).at(idx)
+      let size = (FONTSIZE.三号, FONTSIZE.四号, FONTSIZE.小四, FONTSIZE.五号).at(idx)
+      let above = (0pt, 1.5em, 1.5em, 1.5em).at(idx)
+      let below = (2.8em, 1.5em, 1.5em, 1.5em).at(idx)
+      let indent = (0em, 0em, 2em, 2em).at(idx)
       let number = if it.numbering != none {
         numbering(it.numbering, ..counter(heading).at(it.location()))
+        h(0.5em)
       }
       set text(
         weight: "bold",
-        size: size,
+        size: FONTSIZE.小四, // 正文字号
       )
       block(
         above: above,
@@ -164,10 +169,9 @@
         pad(
           left: indent,
           {
-            set text(font: FontHeiCN)
+            set text(font: FontHeiCN, size: size)
             number
-            h(0.5em)
-            set text(font: FontHei)
+            set text(font: FontHei, size: size)
             it.body
           },
         ),
@@ -405,14 +409,12 @@
   body,
 ) = {
   set heading(numbering: none)
+  let subheadings = heading.where(level: 2).or(heading.where(level: 3)).or(heading.where(level: 4))
+  show subheadings: set heading(outlined: false)
 
   // 参考文献
   if bibliographyFile != none {
-    pagebreak()
-    align(center)[
-      #set text(font: FontHeiCN, size: FONTSIZE.四号)
-      = 参考文献
-    ]
+    [= 参考文献]
 
     set text(
       font: FontSong,
