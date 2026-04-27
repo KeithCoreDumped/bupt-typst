@@ -48,8 +48,10 @@
   titleEN: "",
   abstractEN: "",
   keywordsEN: (),
+  equation-numbering-location: right + bottom,
   body,
 ) = {
+  assert((right, right + bottom).contains(equation-numbering-location), message: "can be only right or right + bottom")
   // 页面配置
   set page(paper: "a4", margin: 2.5cm)
   set text(font: FontSong, weight: "regular", size: FONTSIZE.小四)
@@ -62,7 +64,15 @@
 
   // 数学公式
   set math.equation(
-    numbering: none,
+    numbering: it => context if equation-numbering-location == right [
+      // 改用numbering实现，可在正文 @label
+      #let chapterLevel = counter(heading).at(here()).at(0)
+      #set text(font: FontSong)
+      #h(0em, weak: true)
+      (#chapterLevel\-#equationCounter.display())
+      #h(0em, weak: true)
+      #equationCounter.step()
+    ],
     supplement: none, // 取消自带的 supplement "Equation"
   )
   show math.equation.where(block: true): set block(
@@ -70,18 +80,20 @@
     below: 0em,
   )
   show math.equation.where(block: true): it => block(
-    above: 1.5em,
+    above: 2em,
     below: 0em,
     width: 100%,
     {
-      // 公式编号在下一行右侧
       it
-      align(right, {
-        let chapterLevel = counter(heading).at(here()).at(0)
-        set text(font: FontSong)
-        [(#chapterLevel\-#equationCounter.display())]
-        equationCounter.step()
-      })
+      if equation-numbering-location == right + bottom {
+        // 公式编号在下一行右侧
+        align(right, {
+          let chapterLevel = counter(heading).at(here()).at(0)
+          set text(font: FontSong)
+          [(#chapterLevel\-#equationCounter.display())]
+          equationCounter.step()
+        })
+      }
     },
   )
   // @equation => 式4-1

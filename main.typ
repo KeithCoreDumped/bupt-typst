@@ -24,6 +24,7 @@
     Text text text text text text text text text text text text text text, text text text text text text text, text text text text text text text text text text text text text text. Text text text text text text text text text text text text text text text, text text text text text. Second paragraph text text text text text text text text text text text text text text, text text text text text text text, text text text text text text text text text text text text text text. Text text text text text text text text text text text text text text text, text text text text text.
   ],
   keywordsEN: ("key word 1", "key word 2", "key word 3"),
+  equation-numbering-location: right + bottom // right or right + bottom
 )
 
 = 绪论
