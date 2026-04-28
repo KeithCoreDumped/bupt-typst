@@ -80,8 +80,8 @@
     below: 0em,
   )
   show math.equation.where(block: true): it => block(
-    above: 2em,
-    below: 0em,
+    above: 1.5em,
+    below: 1.5em,
     width: 100%,
     {
       it
