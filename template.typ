@@ -495,3 +495,4 @@
   pagebreak(to: "odd", weak: true) // 最后的空页
 }
 
+#let cite-inline(key) = cite(key, style: "numeric-inline.csl")
