@@ -104,6 +104,14 @@
       let chapter = counter(heading).at(loc).first()
       let eq-num = equationCounter.at(loc).first()
       link(loc)[式 #chapter\-#eq-num]
+    } else if el != none and el.func() == heading {
+      let numbers = counter(heading).at(el.location())
+      h(0em, weak: true)
+      link(el.location())[
+        #numbering(el.numbering, ..numbers)
+      ]
+      if numbers.len() != 1 [节]
+      h(0em, weak: true)
     } else {
       it
     }
