@@ -107,9 +107,9 @@
       image("images/bupt-name.pdf"),
     )
 
-    v(12.11mm)
+    v(15.11mm)
     align(center, text(font: FontHei, size: 26pt)[
-      #fakebold[本#h(0.5em)科#h(0.5em)毕#h(0.5em)业#h(0.5em)设#h(0.5em)计（ 论#h(0.5em)文 ）]
+      #fakebold[本#h(0.5em)科#h(0.5em)毕#h(0.5em)业#h(0.5em)设#h(0.5em)计（#h(0.5em)论#h(0.5em)文#h(0.5em)）#h(0.8em)]
     ])
 
     v(11.51mm)
