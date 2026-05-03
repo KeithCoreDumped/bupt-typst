@@ -104,7 +104,7 @@
 
     v(0.04mm)
     figure(
-      image("images/bupt-name.pdf")
+      image("images/bupt-name.pdf"),
     )
 
     v(12.11mm)
@@ -114,7 +114,7 @@
 
     v(11.51mm)
     figure(
-      image("images/bupt-logo.pdf")
+      image("images/bupt-logo.pdf"),
     )
 
     v(10.5mm)
@@ -175,20 +175,18 @@
           #line(length: 100%, stroke: 0.5pt)
         ],
       )
-      align(center,
-        grid(
-          columns: (lw, vw),
-          column-gutter: 0.2cm,
-          row-gutter: 5.72mm,
-          align: (left, left),
-          ..info-row("姓名", info.author),
-          ..info-row("学院", info.school),
-          ..info-row("专业", info.major),
-          ..info-row("班级", info.class),
-          ..info-row("学号", info.student-id),
-          ..info-row("指导教师", info.supervisor),
-        )
-      )
+      align(center, grid(
+        columns: (lw, vw),
+        column-gutter: 0.2cm,
+        row-gutter: 5.72mm,
+        align: (left, left),
+        ..info-row("姓名", info.author),
+        ..info-row("学院", info.school),
+        ..info-row("专业", info.major),
+        ..info-row("班级", info.class),
+        ..info-row("学号", info.student-id),
+        ..info-row("指导教师", info.supervisor),
+      ))
     }
 
     v(15.99mm)
@@ -246,17 +244,9 @@
 
     v(7.32mm)
     [
-      #h(0.02mm) 本人签名：#box(
-        width: 42.34mm,
-        outset: (bottom: 2pt),
-        stroke: (bottom: 0.5pt),
-      )[
+      #h(0.02mm) 本人签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
         #align(center + horizon)[#content-or-empty(author-signature)]
-      ] #h(9.52mm) 日期：#box(
-        width: 48.69mm,
-        outset: (bottom: 2pt),
-        stroke: (bottom: 0.5pt),
-      )[
+      ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
         #align(center + horizon)[#content-or-empty(author-sign-date)]
       ]
     ]
@@ -271,33 +261,17 @@
 
     v(7.35mm)
     [
-      #h(0.02mm) 本人签名：#box(
-        width: 42.34mm,
-        outset: (bottom: 2pt),
-        stroke: (bottom: 0.5pt),
-      )[
+      #h(0.02mm) 本人签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
         #align(center + horizon)[#content-or-empty(author-signature)]
-      ] #h(9.52mm) 日期：#box(
-        width: 48.69mm,
-        outset: (bottom: 2pt),
-        stroke: (bottom: 0.5pt),
-      )[
+      ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
         #align(center + horizon)[#content-or-empty(author-sign-date)]
       ]
     ]
     v(7.32mm)
     [
-      #h(0.02mm) 导师签名：#box(
-        width: 42.34mm,
-        outset: (bottom: 2pt),
-        stroke: (bottom: 0.5pt),
-      )[
+      #h(0.02mm) 导师签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
         #align(center + horizon)[#content-or-empty(advisor-signature)]
-      ] #h(9.52mm) 日期：#box(
-        width: 48.69mm,
-        outset: (bottom: 2pt),
-        stroke: (bottom: 0.5pt),
-      )[
+      ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
         #align(center + horizon)[#content-or-empty(advisor-sign-date)]
       ]
     ]
@@ -414,7 +388,7 @@
   body,
 ) = {
   assert((right, right + bottom).contains(equation-numbering-location), message: "can be only right or right + bottom")
-  let info-meta = if info-meta == none { (:)} else { info-meta }
+  let info-meta = if info-meta == none { (:) } else { info-meta }
   let info = (
     title-cn: prefer-value(title-cn, fallback: prefer-value(titleZH, fallback: title)),
     title-en: prefer-value(title-en, fallback: titleEN),
@@ -423,7 +397,10 @@
     school: prefer-value(school, fallback: info-meta.at("school", default: none)),
     major: prefer-value(major, fallback: info-meta.at("major", default: none)),
     class: prefer-value(class, fallback: info-meta.at("class", default: none)),
-    supervisor: prefer-value(supervisor, fallback: prefer-value(advisor, fallback: info-meta.at("supervisor", default: none))),
+    supervisor: prefer-value(supervisor, fallback: prefer-value(advisor, fallback: info-meta.at(
+      "supervisor",
+      default: none,
+    ))),
     date: prefer-value(date, fallback: info-meta.at("date", default: none)),
     thesis-type: prefer-value(thesis-type, fallback: info-meta.at("thesis-type", default: none)),
     degree-type: prefer-value(degree-type, fallback: info-meta.at("degree-type", default: none)),
@@ -436,7 +413,15 @@
     header-ascent: 0cm,
     footer-descent: 0cm,
   )
-  set text(font: FontSong, weight: "regular", size: FONTSIZE.小四)
+  set text(
+    font: FontSong,
+    weight: "regular",
+    size: FONTSIZE.小四,
+    costs: ( // 允许孤行/寡行
+      widow: 0%,
+      orphan: 0%,
+    ),
+  )
 
   show: el.paragraph-enum-list.with(
     indent: 0em,
@@ -446,25 +431,31 @@
 
   // 数学公式
   set math.equation(
-    numbering: if equation-numbering-location == right {
-      (..nums) => context {
-        let num = if nums.pos().len() > 0 { nums.pos().first() } else { 0 }
+    numbering: (..nums) => context {
+      let num = if nums.pos().len() > 0 { nums.pos().first() } else { 0 }
+      if equation-numbering-location == right {
         text(font: FontSong)[(#chaptered-number(current-chapter(), num))]
+      } else {
+        []
       }
-    } else {
-      none
     },
     supplement: none, // 取消自带的 supplement "Equation"
   )
+  show math.equation.where(block: true): set block(
+    above: 0em,
+    below: 0em,
+  )
   show math.equation.where(block: true): it => block(
-    above: 1.5em,
-    below: 1.5em,
+    above: 7.4mm,
+    below: 7.4mm,
     width: 100%,
     {
       it
       if equation-numbering-location == right + bottom {
-        // 公式编号在下一行右侧
-        align(right, equation-marker-at(it.location()))
+        // 公式编号单独占用一行固定高度，保证与后续正文间距稳定。
+        block(width: 100%, height: BODY_LEADING)[
+          #align(right + top, equation-marker-at(it.location()))
+        ]
       }
     },
   )
@@ -575,77 +566,75 @@
     "{1}.{2}.{3}",
     "{1}.{2}.{3}.{4}", // here, we only want the 4th level
   ))
-  show heading: it => {
-    if it.level == 1 {
-      pagebreak(to: "odd", weak: true) // 大标题奇数页
-      counter(figure.where(kind: table)).update(0)
-      counter(figure.where(kind: image)).update(0)
-      counter(math.equation).update(0)
-      counter(figure.where(kind: "algorithm")).update(0)
+  show heading.where(level: 1): it => {
+    pagebreak(to: "odd", weak: true)
+    counter(figure.where(kind: table)).update(0)
+    counter(figure.where(kind: image)).update(0)
+    counter(math.equation).update(0)
+    counter(figure.where(kind: "algorithm")).update(0)
+    let number = if it.numbering != none {
+      numbering(it.numbering, ..counter(heading).at(it.location()))
+      // h(0.5em)
     }
+    set par(first-line-indent: 0pt)
+    v(1.8mm)
+    align(center)[
+      #set text(weight: "bold")
+      #set text(font: FontHeiCN, size: FONTSIZE.三号)
+      #number
+      #set text(font: FontHei, size: FONTSIZE.三号)
+      #it.body
+    ]
+    v(7.8mm)
+  }
+  show heading.where(level: 2): it => {
+    let number = if it.numbering != none {
+      numbering(it.numbering, ..counter(heading).at(it.location()))
+      // h(0.5em)
+    }
+    set par(first-line-indent: 0pt)
+    v(1.44mm)
+    [
+      #set text(weight: "bold")
+      #set text(font: FontHeiCN, size: FONTSIZE.四号)
+      #number
+      #set text(font: FontHei, size: FONTSIZE.四号)
+      #it.body
+    ]
+    v(1.85mm)
+  }
+  show heading.where(level: 3): it => {
+    let number = if it.numbering != none {
+      numbering(it.numbering, ..counter(heading).at(it.location()))
+      // h(0.5em)
+    }
+    set par(first-line-indent: 0pt)
+    v(1.10mm)
+    pad(left: 2em)[
+      #set text(weight: "bold")
+      #set text(font: FontHeiCN, size: FONTSIZE.小四)
+      #number
+      #set text(font: FontHei, size: FONTSIZE.小四)
+      #it.body
+    ]
+    v(4.14mm)
+  }
+  show heading.where(level: 4): it => {
     let number = if it.numbering != none {
       numbering(it.numbering, ..counter(heading).at(it.location()))
       h(0.5em)
     }
-
-    if it.level == 1 {
-      block(
-        above: 1.8mm,
-        below: 10.92mm,
-        {
-          set text(font: FontHei, size: FONTSIZE.三号, weight: "bold")
-          number
-          it.body
-        },
-      )
-    } else if it.level == 2 {
-      block(
-        above: 1.44mm,
-        below: 1.85mm,
-        {
-          set text(font: FontHei, size: FONTSIZE.四号, weight: "bold")
-          number
-          it.body
-        },
-      )
-    } else if it.level == 3 {
-      block(
-        above: 2.10mm,
-        below: 2.14mm,
-        pad(
-          left: 2em,
-          {
-            set text(font: FontHei, size: FONTSIZE.小四, weight: "bold")
-            number
-            it.body
-          },
-        ),
-      )
-    } else if it.level == 4 {
-      block(
-        above: 2.11mm,
-        below: 2.11mm,
-        pad(
-          left: 2em,
-          {
-            set text(font: FontSong, size: FONTSIZE.小四, weight: "bold")
-            if it.numbering != none {
-              let nums = counter(heading).at(it.location())
-              if nums.len() > 0 {
-                str(nums.last()) + "."
-                h(0.5em)
-              }
-            }
-            it.body
-          },
-        ),
-      )
-    } else {
-      it
-    }
+    set par(first-line-indent: 0pt)
+    v(2.11mm)
+    pad(left: 2em)[
+      #set text(weight: "bold")
+      #set text(font: FontHeiCN, size: FONTSIZE.五号)
+      #number
+      #set text(font: FontHei, size: FONTSIZE.五号)
+      #it.body
+    ]
+    v(2.11mm)
   }
-
-  show heading.where(level: 1): set align(center)
 
   // 目录
   set page(
