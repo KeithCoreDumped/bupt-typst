@@ -30,7 +30,8 @@
   class: "2023000000",
   supervisor: "王小帅",
   date: "202X 年 6 月",
-  equation-numbering-location: right + bottom // right or right + bottom
+  equation-numbering-location: right + bottom, // right or right + bottom
+  plagiarism-check-only: false, // true 时仅导出查重范围：题名、摘要（含关键词）和正文
 )
 
 = 绪论

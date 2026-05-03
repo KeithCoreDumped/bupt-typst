@@ -50,6 +50,7 @@
 #let HEADER_RULE_TOP = 19.45mm
 #let HEADER_RULE_STROKE = 0.72pt
 #let FOOTER_TEXT_TOP = 5.95mm
+#let plagiarism-check-only-state = state("bupt-thesis-plagiarism-check-only", false)
 
 #let main-header = context {
   place(top + center, dy: HEADER_TEXT_TOP)[
@@ -130,6 +131,7 @@
   advisor-sign-date: none,
   cover-title-line-length: 100.8mm,
   equation-numbering-location: right + bottom,
+  plagiarism-check-only: false,
   body,
 ) = {
   assert((right, right + bottom).contains(equation-numbering-location), message: "can be only right or right + bottom")
@@ -487,16 +489,20 @@
     it
   }
 
-  make-cover-page(info)
-  make-integrity-statement-page(
-    info,
-    integrity-body: integrity-body,
-    authorization-body: authorization-body,
-    author-signature: author-signature,
-    author-sign-date: author-sign-date,
-    advisor-signature: advisor-signature,
-    advisor-sign-date: advisor-sign-date,
-  )
+  plagiarism-check-only-state.update(plagiarism-check-only)
+
+  if not plagiarism-check-only {
+    make-cover-page(info)
+    make-integrity-statement-page(
+      info,
+      integrity-body: integrity-body,
+      authorization-body: authorization-body,
+      author-signature: author-signature,
+      author-sign-date: author-sign-date,
+      advisor-signature: advisor-signature,
+      advisor-sign-date: advisor-sign-date,
+    )
+  }
 
   // 中文摘要
   align(center)[
@@ -633,53 +639,54 @@
     ]
   }
 
-  // 目录
-  set page(
-    numbering: "I",
-    footer: roman-footer,
-  )
-  counter(page).update(1)
+  if not plagiarism-check-only {
+    // 目录
+    set page(
+      numbering: "I",
+      footer: roman-footer,
+    )
+    counter(page).update(1)
 
-  align(center)[
-    #text(font: FontHeiCN, weight: "bold", /*tracking: 2em, */ size: FONTSIZE.三号, [目录\ \ ]) // 2026模板移除了标题的2em空格
-  ]
-  show outline.entry: it => {
-    set par(first-line-indent: 0em, leading: OUTLINE_LEADING, spacing: OUTLINE_LEADING)
-    let indent = (it.level - 1) * 2em
-    let elem = it.element
-    let loc = elem.location()
-    let body = elem.body
-    if not elem.outlined {
-      return
-    }
-
-    link(loc, {
-      if it.level == 1 {
-        text(
-          font: FontHei,
-          size: FONTSIZE.小四,
-          if elem.numbering != none {
-            numbering(elem.numbering, ..counter(heading).at(loc))
-            h(0.5em, weak: true)
-          }
-            + body,
-        )
-      } else {
-        h(indent)
-        numbering(elem.numbering, ..counter(heading).at(loc))
-        h(0.5em)
-        body
+    align(center)[
+      #text(font: FontHeiCN, weight: "bold", /*tracking: 2em, */ size: FONTSIZE.三号, [目录\ \ ]) // 2026模板移除了标题的2em空格
+    ]
+    show outline.entry: it => {
+      set par(first-line-indent: 0em, leading: OUTLINE_LEADING, spacing: OUTLINE_LEADING)
+      let indent = (it.level - 1) * 2em
+      let elem = it.element
+      let loc = elem.location()
+      let body = elem.body
+      if not elem.outlined {
+        return
       }
 
-      box(width: 1fr, repeat(gap: 0.05em)[.])
+      link(loc, {
+        if it.level == 1 {
+          text(
+            font: FontHei,
+            size: FONTSIZE.小四,
+            if elem.numbering != none {
+              numbering(elem.numbering, ..counter(heading).at(loc))
+              h(0.5em, weak: true)
+            }
+              + body,
+          )
+        } else {
+          h(indent)
+          numbering(elem.numbering, ..counter(heading).at(loc))
+          h(0.5em)
+          body
+        }
 
-      [#counter(page).at(loc).at(0) \ ]
-    })
+        box(width: 1fr, repeat(gap: 0.05em)[.])
+
+        [#counter(page).at(loc).at(0) \ ]
+      })
+    }
+
+    outline(title: none, depth: 3, indent: auto)
+    pagebreak(to: "odd", weak: true) // 手动换页，否则带页眉
   }
-
-  outline(title: none, depth: 3, indent: auto)
-
-  pagebreak(to: "odd", weak: true) // 手动换页，否则带页眉
 
   set page(numbering: "1")
 
@@ -822,29 +829,41 @@
   bibliographyFile: none,
   body,
 ) = {
-  set heading(numbering: none)
-  let subheadings = heading.where(level: 2).or(heading.where(level: 3)).or(heading.where(level: 4))
-  show subheadings: set heading(outlined: false)
+  context if plagiarism-check-only-state.get() {
+    if bibliographyFile != none {
+      show bibliography: it => []
+      bibliography(
+        bibliographyFile,
+        title: none,
+        style: "gb-7714-2015-numeric",
+      )
+    }
+    []
+  } else {
+    set heading(numbering: none)
+    let subheadings = heading.where(level: 2).or(heading.where(level: 3)).or(heading.where(level: 4))
+    show subheadings: set heading(outlined: false)
 
-  // 参考文献
-  if bibliographyFile != none {
-    [= 参考文献]
+    // 参考文献
+    if bibliographyFile != none {
+      [= 参考文献]
 
-    set text(
-      font: FontSong,
-      size: FONTSIZE.五号,
-      lang: "zh",
-    )
-    set par(first-line-indent: 0em)
-    bibliography(
-      bibliographyFile,
-      title: none,
-      style: "gb-7714-2015-numeric",
-    )
-    show bibliography: it => {}
+      set text(
+        font: FontSong,
+        size: FONTSIZE.五号,
+        lang: "zh",
+      )
+      set par(first-line-indent: 0em)
+      bibliography(
+        bibliographyFile,
+        title: none,
+        style: "gb-7714-2015-numeric",
+      )
+      show bibliography: it => {}
+    }
+
+    body
   }
-
-  body
 }
 
 // 表注

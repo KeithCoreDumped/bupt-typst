@@ -81,6 +81,7 @@ typst compile --font-path path/to/fonts main.typ
 高级参数：
 
 - `equation-numbering-location` 可选 `right` 或 `right + bottom`，分别表示公式编号显示在公式右侧，或显示在公式下方右侧。
+- `plagiarism-check-only` 可选 `true` / `false`。设为 `true` 时只输出查重范围：篇名、中文摘要（含关键词）、英文摘要（含关键词）和正文；自动排除封面、声明页、目录、参考文献与附录。
 - `integrity-body`、`authorization-body` 可分别覆盖默认的诚信声明和论文使用授权说明正文。
 - `author-signature`、`author-sign-date`、`advisor-signature`、`advisor-sign-date` 可用于预填声明页签名与日期。
 
@@ -117,6 +118,20 @@ typst compile --font-path path/to/fonts main.typ
     ("RLHF", "Reinforcement Learning from Human Feedback，基于人类反馈的强化学习"),
   ),
   abbreviation-width: 2.1cm,
+)
+```
+
+查重范围导出示例：
+
+```typst
+#show: BUPTBachelorThesis.with(
+  title-cn: [中文题目],
+  title-en: [English Title],
+  abstractZH: [中文摘要。],
+  keywordsZH: ("关键词1", "关键词2"),
+  abstractEN: [English abstract.],
+  keywordsEN: ("keyword 1", "keyword 2"),
+  plagiarism-check-only: true,
 )
 ```
 
