@@ -675,6 +675,8 @@
 
   outline(title: none, depth: 3, indent: auto)
 
+  pagebreak(to: "odd", weak: true) // 手动换页，否则带页眉
+
   set page(numbering: "1")
 
   // 引用
