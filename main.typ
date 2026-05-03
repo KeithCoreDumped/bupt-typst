@@ -1,8 +1,8 @@
 #import "template.typ": *
 
 #show: BUPTBachelorThesis.with(
-  title-cn: "论文题目",
-  title-en: "The Title",
+  title-cn: "基于扩散模型的短视频生成技术研究",
+  title-en: "Research on Short Video Generation Based on Diffusion Models",
   abstractZH: [
     第一句话写课题研究的意义。第二句话写课题的核心挑战、难点和问题。第三句话写为了应对上述问题，本文从哪些方面进行了研究。本文的主要工作包括：（建议分条书写，如果无法拆分，也可以按照要求写一段具体工作）。
 
@@ -23,13 +23,13 @@
     Text text text text text text text text text text text text text text, text text text text text text text, text text text text text text text text text text text text text text. Text text text text text text text text text text text text text text text, text text text text text. Second paragraph text text text text text text text text text text text text text text, text text text text text text text, text text text text text text text text text text text text text text. Text text text text text text text text text text text text text text text, text text text text text.
   ],
   keywordsEN: ("key word 1", "key word 2", "key word 3"),
-  author: "张三",
-  student-id: "2021210000",
-  school: "计算机学院",
-  major: "计算机科学与技术",
-  class: "2021211301",
-  supervisor: "李四",
-  date: "2026年5月",
+  author: "张小美",
+  student-id: "2023000123",
+  school: "学院名称",
+  major: "专业名称",
+  class: "2023000000",
+  supervisor: "王小帅",
+  date: "202X 年 6 月",
   equation-numbering-location: right + bottom // right or right + bottom
 )
 

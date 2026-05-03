@@ -83,29 +83,7 @@
 
 #let content-or-empty(value) = if value == none { [] } else { value }
 
-#let format-cover-date(date) = {
-  if date == none {
-    []
-  } else if type(date) == datetime {
-    str(date.year) + "年" + str(date.month) + "月"
-  } else {
-    date
-  }
-}
-
-#let render-cover-date(date) = {
-  if date == none {
-    []
-  } else if type(date) == datetime {
-    fakebold[#date.year #h(0.5em) 年 #h(0.5em) #date.month #h(0.5em) 月]
-  } else if type(date) == dictionary and "year" in date and "month" in date {
-    fakebold[#date.year #h(0.5em) 年 #h(0.5em) #date.month #h(0.5em) 月]
-  } else if type(date) == str {
-    fakebold[#date]
-  } else {
-    fakebold[#content-or-empty(format-cover-date(date))]
-  }
-}
+#let cover-date(date) = if date == none { [] } else { fakebold[#date] }
 
 #let make-cover-page(info) = {
   let title-cn = content-or-empty(info.title-cn)
@@ -117,23 +95,29 @@
     set par(leading: 0.25em, first-line-indent: 0pt, spacing: 0.25em)
 
     v(0.04mm)
-    figure(
-      image("images/bupt-name.pdf"),
-    )
+    align(center)[
+      #box(inset: (left: 6.4mm))[
+        #image("images/bupt-name.pdf", width: 94.75mm)
+      ]
+    ]
 
-    v(15.11mm)
-    align(center, text(font: FontHei, size: 26pt)[
-      #fakebold[本#h(0.5em)科#h(0.5em)毕#h(0.5em)业#h(0.5em)设#h(0.5em)计（#h(0.5em)论#h(0.5em)文#h(0.5em)）#h(0.8em)]
-    ])
+    v(16.7mm)
+    align(center)[
+      #box(inset: (left: 7.0mm))[
+        #text(font: FontHei, size: 26pt)[
+          #fakebold[本#h(0.5em)科#h(0.5em)毕#h(0.5em)业#h(0.5em)设#h(0.5em)计（#h(0.5em)论#h(0.5em)文#h(0.5em)）#h(0.8em)]
+        ]
+      ]
+    ]
 
     v(13.5mm)
     figure(
       image("images/bupt-logo.pdf"),
     )
 
-    v(10.5mm)
+    v(11.1mm)
     {
-      let line-length = 101.2mm
+      let line-length = 100.8mm
       let line-offset = 3.5pt
       set text(font: FontHeiCN, size: FONTSIZE.三号)
       set par(leading: 0.75em)
@@ -145,23 +129,25 @@
         let single-h = measure(box(width: line-length, align(center, fakebold[题]))).height
 
         align(center)[
-          #fakebold[题目：]#box(width: line-length, baseline: content-h - single-h)[
-            #align(center)[#title-body]
-            #place(left + top, dy: content-h + line-offset)[
-              #line(length: line-length, stroke: 0.5pt)
-            ]
-            #if two-lines {
-              let first-line-h = single-h
-              place(left + top, dy: first-line-h + line-offset)[
+          #box(inset: (left: 2.9mm))[
+            #fakebold[题目：]#box(width: line-length, baseline: content-h - single-h)[
+              #align(center)[#title-body]
+              #place(left + top, dy: content-h + line-offset)[
                 #line(length: line-length, stroke: 0.5pt)
               ]
-            }
+              #if two-lines {
+                let first-line-h = single-h
+                place(left + top, dy: first-line-h + line-offset)[
+                  #line(length: line-length, stroke: 0.5pt)
+                ]
+              }
+            ]
           ]
         ]
       }
     }
 
-    v(17.59mm)
+    v(18.0mm)
     {
       let lw = 4em
       let all-values = (
@@ -172,10 +158,7 @@
         str(content-or-empty(info.student-id)),
         str(content-or-empty(info.supervisor)),
       )
-      let min-limit = 10
-      let max-limit = 15
-      let max-len = calc.max(..all-values.map(v => v.clusters().len()))
-      let vw = calc.max(calc.min(max-len + 1, max-limit), min-limit) * 1em
+      let vw = 12em
 
       set text(size: FONTSIZE.三号)
       let make-label(s) = {
@@ -186,27 +169,37 @@
         make-label(label),
         box(width: vw)[
           #align(center)[#fakebold[#content-or-empty(value)]]
-          #line(length: 100%, stroke: 0.5pt)
+          #place(left + bottom, dy: 0.5mm)[
+            #line(length: 100%, stroke: 0.5pt)
+          ]
         ],
       )
-      align(center, grid(
-        columns: (lw, vw),
-        column-gutter: 0.2cm,
-        row-gutter: 5.72mm,
-        align: (left, left),
-        ..info-row("姓名", info.author),
-        ..info-row("学院", info.school),
-        ..info-row("专业", info.major),
-        ..info-row("班级", info.class),
-        ..info-row("学号", info.student-id),
-        ..info-row("指导教师", info.supervisor),
-      ))
+      align(center)[
+        #box(inset: (right: 2mm))[
+          #grid(
+            columns: (lw, vw),
+            column-gutter: 0cm,
+            row-gutter: 5.72mm + 3.5pt,
+            align: (left, left),
+            ..info-row("姓名", info.author),
+            ..info-row("学院", info.school),
+            ..info-row("专业", info.major),
+            ..info-row("班级", info.class),
+            ..info-row("学号", info.student-id),
+            ..info-row("指导教师", info.supervisor),
+          )
+        ]
+      ]
     }
 
-    v(15.99mm)
-    align(center, text(size: FONTSIZE.三号)[
-      #render-cover-date(date)
-    ])
+    v(17.8mm)
+    align(center)[
+      #box(inset: (left: 14.0mm))[
+        #text(font: FontSongCN, size: FONTSIZE.三号)[
+          #cover-date(date)
+        ]
+      ]
+    ]
     pagebreak()
   }
 }
