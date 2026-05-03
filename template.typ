@@ -586,15 +586,15 @@
       // h(0.5em)
     }
     set par(first-line-indent: 0pt)
-    v(1.44mm)
-    [
+    block(sticky: true)[
+      #v(1.44mm)
       #set text(weight: "bold")
       #set text(font: FontHeiCN, size: FONTSIZE.四号)
       #number
       #set text(font: FontHei, size: FONTSIZE.四号)
       #it.body
+      #v(1.85mm)
     ]
-    v(1.85mm)
   }
   show heading.where(level: 3): it => {
     let number = if it.numbering != none {
@@ -602,15 +602,17 @@
       // h(0.5em)
     }
     set par(first-line-indent: 0pt)
-    v(1.10mm)
-    pad(left: 2em)[
-      #set text(weight: "bold")
-      #set text(font: FontHeiCN, size: FONTSIZE.小四)
-      #number
-      #set text(font: FontHei, size: FONTSIZE.小四)
-      #it.body
+    block(sticky: true)[
+      #v(1.10mm)
+      #pad(left: 2em)[
+        #set text(weight: "bold")
+        #set text(font: FontHeiCN, size: FONTSIZE.小四)
+        #number
+        #set text(font: FontHei, size: FONTSIZE.小四)
+        #it.body
+      ]
+      #v(4.14mm)
     ]
-    v(4.14mm)
   }
   show heading.where(level: 4): it => {
     let number = if it.numbering != none {
@@ -618,15 +620,17 @@
       h(0.5em)
     }
     set par(first-line-indent: 0pt)
-    v(2.11mm)
-    pad(left: 2em)[
-      #set text(weight: "bold")
-      #set text(font: FontHeiCN, size: FONTSIZE.五号)
-      #number
-      #set text(font: FontHei, size: FONTSIZE.五号)
-      #it.body
+    block(sticky: true)[
+      #v(2.11mm)
+      #pad(left: 2em)[
+        #set text(weight: "bold")
+        #set text(font: FontHeiCN, size: FONTSIZE.五号)
+        #number
+        #set text(font: FontHei, size: FONTSIZE.五号)
+        #it.body
+      ]
+      #v(2.11mm)
     ]
-    v(2.11mm)
   }
 
   // 目录
@@ -860,11 +864,11 @@
   show heading.where(level: 2): it => {
     set par(first-line-indent: 0em)
     set text(font: FontHeiCN, size: FONTSIZE.四号, weight: "bold")
-    block(
-      above: 1.5em,
-      below: 1.5em,
-      it.body,
-    )
+    block(sticky: true)[
+      #v(1.5em)
+      #it.body
+      #v(1.5em)
+    ]
   }
   body
   pagebreak(to: "odd", weak: true) // 最后的空页
