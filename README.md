@@ -70,7 +70,6 @@ typst compile --font-path path/to/fonts main.typ
 
 - `title-cn` / `title-en` 用于中英文标题。
 - `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 当前会渲染到封面或声明页。
-- `thesis-type`、`degree-type`、`confidentiality` 已作为参数预留，但当前版本尚未渲染到页面中。
 
 兼容性说明：
 

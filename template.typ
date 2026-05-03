@@ -374,9 +374,6 @@
   advisor: none,
   supervisor: none,
   date: none,
-  thesis-type: none,
-  degree-type: none,
-  confidentiality: none,
   info-meta: none,
   integrity-body: none,
   authorization-body: none,
@@ -402,9 +399,6 @@
       default: none,
     ))),
     date: prefer-value(date, fallback: info-meta.at("date", default: none)),
-    thesis-type: prefer-value(thesis-type, fallback: info-meta.at("thesis-type", default: none)),
-    degree-type: prefer-value(degree-type, fallback: info-meta.at("degree-type", default: none)),
-    confidentiality: prefer-value(confidentiality, fallback: info-meta.at("confidentiality", default: none)),
   )
   // 页面配置
   set page(

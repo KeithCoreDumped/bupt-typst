@@ -30,9 +30,6 @@
   class: "2021211301",
   supervisor: "李四",
   date: "2026年5月",
-  thesis-type: "毕业设计（论文）",
-  degree-type: "工学学士",
-  confidentiality: "公开",
   equation-numbering-location: right + bottom // right or right + bottom
 )
 
