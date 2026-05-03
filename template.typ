@@ -114,39 +114,35 @@
   titleEN: "",
   abstractEN: "",
   keywordsEN: (),
-  author: none,
-  student-id: none,
-  school: none,
-  major: none,
-  class: none,
+  author: "张小美",
+  student-id: "2023000123",
+  school: "学院名称",
+  major: "专业名称",
+  class: "2023000000",
   advisor: none,
-  supervisor: none,
-  date: none,
-  info-meta: none,
+  supervisor: "王小帅",
+  date: "202X 年 6 月",
   integrity-body: none,
   authorization-body: none,
   author-signature: none,
   author-sign-date: none,
   advisor-signature: none,
   advisor-sign-date: none,
+  cover-title-line-length: 100.8mm,
   equation-numbering-location: right + bottom,
   body,
 ) = {
   assert((right, right + bottom).contains(equation-numbering-location), message: "can be only right or right + bottom")
-  let info-meta = if info-meta == none { (:) } else { info-meta }
   let info = (
     title-cn: prefer-value(title-cn, fallback: prefer-value(titleZH, fallback: title)),
     title-en: prefer-value(title-en, fallback: titleEN),
-    author: prefer-value(author, fallback: info-meta.at("author", default: none)),
-    student-id: prefer-value(student-id, fallback: info-meta.at("student-id", default: none)),
-    school: prefer-value(school, fallback: info-meta.at("school", default: none)),
-    major: prefer-value(major, fallback: info-meta.at("major", default: none)),
-    class: prefer-value(class, fallback: info-meta.at("class", default: none)),
-    supervisor: prefer-value(supervisor, fallback: prefer-value(advisor, fallback: info-meta.at(
-      "supervisor",
-      default: none,
-    ))),
-    date: prefer-value(date, fallback: info-meta.at("date", default: none)),
+    author: author,
+    student-id: student-id,
+    school: school,
+    major: major,
+    class: class,
+    supervisor: prefer-value(supervisor, fallback: advisor),
+    date: date,
   )
   let content-or-empty(value) = if value == none { [] } else { value }
   let cover-date(date) = if date == none { [] } else { fakebold[#date] }
@@ -190,7 +186,7 @@
 
       v(11.1mm)
       {
-        let line-length = 100.8mm
+        let line-length = cover-title-line-length
         let line-offset = 3.5pt
         set text(font: FontHeiCN, size: FONTSIZE.三号)
         set par(leading: 0.75em)

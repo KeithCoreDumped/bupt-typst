@@ -69,7 +69,7 @@ typst compile --font-path path/to/fonts main.typ
 其中：
 
 - `title-cn` / `title-en` 用于中英文标题。
-- `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 当前会渲染到封面或声明页。
+- `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 当前会渲染到封面或声明页；这些字段现在自带占位默认值，按需覆盖即可。
 - `date` 建议直接传入最终显示字符串，例如 `2026 年 5 月` 或 `202X 年 6 月`。
 
 兼容性说明：
@@ -81,7 +81,6 @@ typst compile --font-path path/to/fonts main.typ
 高级参数：
 
 - `equation-numbering-location` 可选 `right` 或 `right + bottom`，分别表示公式编号显示在公式右侧，或显示在公式下方右侧。
-- `info-meta` 可作为封面信息的集中兜底输入，支持 `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 等键。
 - `integrity-body`、`authorization-body` 可分别覆盖默认的诚信声明和论文使用授权说明正文。
 - `author-signature`、`author-sign-date`、`advisor-signature`、`advisor-sign-date` 可用于预填声明页签名与日期。
 
