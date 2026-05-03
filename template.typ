@@ -150,14 +150,6 @@
     v(18.0mm)
     {
       let lw = 4em
-      let all-values = (
-        str(content-or-empty(info.author)),
-        str(content-or-empty(info.school)),
-        str(content-or-empty(info.major)),
-        str(content-or-empty(info.class)),
-        str(content-or-empty(info.student-id)),
-        str(content-or-empty(info.supervisor)),
-      )
       let vw = 12em
 
       set text(size: FONTSIZE.三号)

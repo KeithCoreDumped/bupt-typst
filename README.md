@@ -70,11 +70,13 @@ typst compile --font-path path/to/fonts main.typ
 
 - `title-cn` / `title-en` 用于中英文标题。
 - `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 当前会渲染到封面或声明页。
+- `date` 建议直接传入最终显示字符串，例如 `2026年5月` 或 `202X 年 6 月`。
 
 兼容性说明：
 
 - 旧字段 `titleZH`、`titleEN` 仍可继续使用。
 - `advisor` 会自动映射到 `supervisor`。
+- 旧版本中如果依赖 `datetime` 自动格式化封面日期，请改为直接传入最终显示文本；当前模板会按传入内容原样渲染 `date`。
 
 最小示例：
 
