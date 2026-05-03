@@ -93,6 +93,20 @@
   }
 }
 
+#let render-cover-date(date) = {
+  if date == none {
+    []
+  } else if type(date) == datetime {
+    fakebold[#date.year #h(0.5em) 年 #h(0.5em) #date.month #h(0.5em) 月]
+  } else if type(date) == dictionary and "year" in date and "month" in date {
+    fakebold[#date.year #h(0.5em) 年 #h(0.5em) #date.month #h(0.5em) 月]
+  } else if type(date) == str {
+    fakebold[#date]
+  } else {
+    fakebold[#content-or-empty(format-cover-date(date))]
+  }
+}
+
 #let make-cover-page(info) = {
   let title-cn = content-or-empty(info.title-cn)
   let date = info.date
@@ -112,14 +126,14 @@
       #fakebold[本#h(0.5em)科#h(0.5em)毕#h(0.5em)业#h(0.5em)设#h(0.5em)计（#h(0.5em)论#h(0.5em)文#h(0.5em)）#h(0.8em)]
     ])
 
-    v(11.51mm)
+    v(13.5mm)
     figure(
       image("images/bupt-logo.pdf"),
     )
 
     v(10.5mm)
     {
-      let line-length = 102mm
+      let line-length = 101.2mm
       let line-offset = 3.5pt
       set text(font: FontHeiCN, size: FONTSIZE.三号)
       set par(leading: 0.75em)
@@ -147,7 +161,7 @@
       }
     }
 
-    v(16.69mm)
+    v(17.59mm)
     {
       let lw = 4em
       let all-values = (
@@ -191,11 +205,7 @@
 
     v(15.99mm)
     align(center, text(size: FONTSIZE.三号)[
-      #if type(date) == datetime {
-        fakebold[#date.year #h(0.5em) 年 #h(0.5em) #date.month #h(0.5em) 月]
-      } else {
-        fakebold[#content-or-empty(format-cover-date(date))]
-      }
+      #render-cover-date(date)
     ])
     pagebreak()
   }
