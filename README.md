@@ -78,6 +78,13 @@ typst compile --font-path path/to/fonts main.typ
 - `advisor` 会自动映射到 `supervisor`。
 - 旧版本中如果依赖 `datetime` 自动格式化封面日期，请改为直接传入最终显示文本；当前模板会按传入内容原样渲染 `date`。
 
+高级参数：
+
+- `equation-numbering-location` 可选 `right` 或 `right + bottom`，分别表示公式编号显示在公式右侧，或显示在公式下方右侧。
+- `info-meta` 可作为封面信息的集中兜底输入，支持 `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 等键。
+- `integrity-body`、`authorization-body` 可分别覆盖默认的诚信声明和论文使用授权说明正文。
+- `author-signature`、`author-sign-date`、`advisor-signature`、`advisor-sign-date` 可用于预填声明页签名与日期。
+
 最小示例：
 
 ```typst
@@ -115,6 +122,17 @@ typst compile --font-path path/to/fonts main.typ
 ```
 
 `AcronymList(...)` 只负责按 A-Z 排序并渲染两列表格，不带表头。左列是英文缩写，右列是解释文本；推荐直接写成二元组 `(缩写, 解释)`。如果需要调节列宽，可用 `abbreviation-width:`；也可以通过 `align:`、`inset:`、`stroke:` 做轻量调整。
+
+## 引用辅助
+
+- `cite-inline(key)` 可生成行内数字引用，适合“文献[1] 指出”这类不希望单独占据一个引用块的场景。
+- 常规 `@key` 引用和 `#cite(<key>)` 仍可继续使用。
+
+示例：
+
+```typst
+文献表明该方法在多种任务上有效 #cite-inline(<wang2024>).
+```
 
 ## 字体
 
