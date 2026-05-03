@@ -10,10 +10,11 @@
 
 ```
 - images
-	- bupt.png
+	- bupt-logo.pdf
+	- bupt-name.pdf
 - main.typ
 - template.typ
-- FZKTK.ttf
+- KaiTi.ttf
 ```
 
 然后只要修改 `main.typ` 就可以了。
@@ -54,7 +55,7 @@ typst compile --font-path path/to/fonts main.typ
 
 ## 用法
 
-推荐直接使用 `title-cn`、`title-en` 和封面信息字段：
+推荐直接使用 `title-cn`、`title-en` 和当前已生效的封面信息字段：
 
 - `title-cn` / `title-en`
 - `author`
@@ -64,9 +65,12 @@ typst compile --font-path path/to/fonts main.typ
 - `class`
 - `supervisor`
 - `date`
-- `thesis-type`
-- `degree-type`
-- `confidentiality`
+
+其中：
+
+- `title-cn` / `title-en` 用于中英文标题。
+- `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 当前会渲染到封面或声明页。
+- `thesis-type`、`degree-type`、`confidentiality` 已作为参数预留，但当前版本尚未渲染到页面中。
 
 兼容性说明：
 
