@@ -12,6 +12,38 @@
   matches.first()
 }
 
+#let chapter-at(loc) = {
+  let nums = counter(heading).at(loc)
+  assert(nums.len() > 0, message: "missing heading context for " + repr(loc))
+  nums.first()
+}
+
+#let counter-number-at(ctr, loc) = {
+  let nums = ctr.at(loc)
+  assert(nums.len() > 0, message: "missing counter context for " + repr(loc))
+  nums.first()
+}
+
+#let chaptered-number(chapter, number) = str(chapter) + "-" + str(number)
+
+#let figure-counter-of-kind(kind) = {
+  if kind == image {
+    counter(figure.where(kind: image))
+  } else if kind == table {
+    counter(figure.where(kind: table))
+  } else if kind == "algorithm" {
+    counter(figure.where(kind: "algorithm"))
+  } else {
+    none
+  }
+}
+
+#let figure-number-at(kind, loc) = {
+  let ctr = figure-counter-of-kind(kind)
+  assert(ctr != none, message: "unsupported figure kind in counter test")
+  chaptered-number(chapter-at(loc), counter-number-at(ctr, loc))
+}
+
 #let assert-eq-number(label, expected-counter, expected-display) = context {
   let loc = locate-one(label)
   let counter-value = counter-number-at(counter(math.equation), loc)

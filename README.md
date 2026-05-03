@@ -70,7 +70,7 @@ typst compile --font-path path/to/fonts main.typ
 
 - `title-cn` / `title-en` 用于中英文标题。
 - `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 当前会渲染到封面或声明页。
-- `date` 建议直接传入最终显示字符串，例如 `2026年5月` 或 `202X 年 6 月`。
+- `date` 建议直接传入最终显示字符串，例如 `2026 年 5 月` 或 `202X 年 6 月`。
 
 兼容性说明：
 
@@ -92,7 +92,7 @@ typst compile --font-path path/to/fonts main.typ
   major: [计算机科学与技术],
   class: [2021211301],
   supervisor: [李四],
-  date: [2026年5月],
+  date: [2026 年 5 月],
   abstractZH: [中文摘要。],
   keywordsZH: ("关键词1", "关键词2"),
   abstractEN: [English abstract.],

@@ -81,254 +81,7 @@
   }
 }
 
-#let content-or-empty(value) = if value == none { [] } else { value }
-
-#let cover-date(date) = if date == none { [] } else { fakebold[#date] }
-
-#let make-cover-page(info) = {
-  let title-cn = content-or-empty(info.title-cn)
-  let date = info.date
-
-  {
-    // Cover layout adapted closely from WongWang/typst-BUPT-Bachelor-Thesis (MIT).
-    set page(header: none, footer: none, numbering: none)
-    set par(leading: 0.25em, first-line-indent: 0pt, spacing: 0.25em)
-
-    v(0.04mm)
-    align(center)[
-      #box(inset: (left: 6.4mm))[
-        #image("images/bupt-name.pdf", width: 94.75mm)
-      ]
-    ]
-
-    v(16.7mm)
-    align(center)[
-      #box(inset: (left: 7.0mm))[
-        #text(font: FontHei, size: 26pt)[
-          #fakebold[本#h(0.5em)科#h(0.5em)毕#h(0.5em)业#h(0.5em)设#h(0.5em)计（#h(0.5em)论#h(0.5em)文#h(0.5em)）#h(0.8em)]
-        ]
-      ]
-    ]
-
-    v(13.5mm)
-    figure(
-      image("images/bupt-logo.pdf"),
-    )
-
-    v(11.1mm)
-    {
-      let line-length = 100.8mm
-      let line-offset = 3.5pt
-      set text(font: FontHeiCN, size: FONTSIZE.三号)
-      set par(leading: 0.75em)
-      context {
-        let title-body = fakebold[#title-cn]
-        let title-w = measure(title-body).width
-        let two-lines = title-w > line-length
-        let content-h = measure(box(width: line-length, align(center, title-body))).height
-        let single-h = measure(box(width: line-length, align(center, fakebold[题]))).height
-
-        align(center)[
-          #box(inset: (left: 2.9mm))[
-            #fakebold[题目：]#box(width: line-length, baseline: content-h - single-h)[
-              #align(center)[#title-body]
-              #place(left + top, dy: content-h + line-offset)[
-                #line(length: line-length, stroke: 0.5pt)
-              ]
-              #if two-lines {
-                let first-line-h = single-h
-                place(left + top, dy: first-line-h + line-offset)[
-                  #line(length: line-length, stroke: 0.5pt)
-                ]
-              }
-            ]
-          ]
-        ]
-      }
-    }
-
-    v(18.0mm)
-    {
-      let lw = 4em
-      let vw = 12em
-
-      set text(size: FONTSIZE.三号)
-      let make-label(s) = {
-        let chars = s.clusters()
-        box(width: lw, text[#fakebold[#chars.join(h(1fr))]])
-      }
-      let info-row(label, value) = (
-        make-label(label),
-        box(width: vw)[
-          #align(center)[#fakebold[#content-or-empty(value)]]
-          #place(left + bottom, dy: 0.5mm)[
-            #line(length: 100%, stroke: 0.5pt)
-          ]
-        ],
-      )
-      align(center)[
-        #box(inset: (right: 2mm))[
-          #grid(
-            columns: (lw, vw),
-            column-gutter: 0cm,
-            row-gutter: 5.72mm + 3.5pt,
-            align: (left, left),
-            ..info-row("姓名", info.author),
-            ..info-row("学院", info.school),
-            ..info-row("专业", info.major),
-            ..info-row("班级", info.class),
-            ..info-row("学号", info.student-id),
-            ..info-row("指导教师", info.supervisor),
-          )
-        ]
-      ]
-    }
-
-    v(17.8mm)
-    align(center)[
-      #box(inset: (left: 14.0mm))[
-        #text(font: FontSongCN, size: FONTSIZE.三号)[
-          #cover-date(date)
-        ]
-      ]
-    ]
-    pagebreak()
-  }
-}
-
-#let default-integrity-statement-body(info) = [
-  本人声明所呈交的毕业设计（论文），题目《#content-or-empty(info.title-cn)》是本人在指导教师的指导下，独立进行研究工作所取得的成果。尽我所知，除了文中特别加以标注和致谢中所列内容外，论文中不包含其他人已经发表或撰写过的研究成果，也不包含为获得北京邮电大学或其他教育机构的学位或证书而使用过的材料。
-
-  申请学位论文与资料若有不实之处，本人承担一切相关责任。
-]
-
-#let default-authorization-statement-body() = [
-  本人完全了解并同意北京邮电大学有关保留、使用学位论文的规定，即：北京邮电大学拥有以下关于学位论文的无偿使用权，具体包括：学校有权保留并向国家有关部门或机构送交学位论文，有权允许学位论文被查阅和借阅；学校可以公布学位论文的全部或部分内容，有权允许采用影印、缩印或其它复制手段保存、汇编学位论文，将学位论文的全部或部分内容编入有关数据库进行检索。（保密的学位论文在解密后遵守此规定）
-]
-
-#let make-integrity-statement-page(
-  info,
-  integrity-body: none,
-  authorization-body: none,
-  author-signature: none,
-  author-sign-date: none,
-  advisor-signature: none,
-  advisor-sign-date: none,
-) = {
-  let integrity-body = prefer-value(integrity-body, default: default-integrity-statement-body(info))
-  let authorization-body = prefer-value(authorization-body, default: default-authorization-statement-body())
-
-  {
-    // Statement page adapted closely from WongWang/typst-BUPT-Bachelor-Thesis (MIT).
-    set page(header: none, footer: none, numbering: none)
-    set par(first-line-indent: 0em, spacing: 0.25em, leading: 0.25em)
-
-    v(12mm)
-    align(center, text(size: FONTSIZE.小三)[
-      #fakebold[北#h(0.5em)京#h(0.5em)邮#h(0.5em)电#h(0.5em)大#h(0.5em)学]
-    ])
-    v(5.36mm)
-    align(center, text(size: FONTSIZE.小三)[
-      #fakebold[本科毕业设计（论文）诚信声明]
-    ])
-
-    v(1.03mm)
-    set par(first-line-indent: 2em, leading: 1.26em, spacing: 1.26em)
-    set text(size: FONTSIZE.小四)
-    integrity-body
-
-    v(7.32mm)
-    [
-      #h(0.02mm) 本人签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
-        #align(center + horizon)[#content-or-empty(author-signature)]
-      ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
-        #align(center + horizon)[#content-or-empty(author-sign-date)]
-      ]
-    ]
-
-    v(28.23mm)
-    align(center, text(size: FONTSIZE.小三)[
-      #fakebold[关于论文使用授权的说明]
-    ])
-
-    v(-0.34mm)
-    authorization-body
-
-    v(7.35mm)
-    [
-      #h(0.02mm) 本人签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
-        #align(center + horizon)[#content-or-empty(author-signature)]
-      ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
-        #align(center + horizon)[#content-or-empty(author-sign-date)]
-      ]
-    ]
-    v(7.32mm)
-    [
-      #h(0.02mm) 导师签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
-        #align(center + horizon)[#content-or-empty(advisor-signature)]
-      ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
-        #align(center + horizon)[#content-or-empty(advisor-sign-date)]
-      ]
-    ]
-    pagebreak()
-  }
-}
-
-#let chapter-at(loc) = {
-  let nums = counter(heading).at(loc)
-  if nums.len() > 0 { nums.first() } else { 0 }
-}
-
-#let counter-number-at(ctr, loc) = {
-  let nums = ctr.at(loc)
-  if nums.len() > 0 { nums.first() } else { 0 }
-}
-
-#let current-chapter() = {
-  let nums = counter(heading).get()
-  if nums.len() > 0 { nums.first() } else { 0 }
-}
-
 #let chaptered-number(chapter, number) = str(chapter) + "-" + str(number)
-
-#let equation-marker-at(loc) = {
-  let chapter = chapter-at(loc)
-  let number = counter-number-at(counter(math.equation), loc)
-  text(font: FontSong)[(#chaptered-number(chapter, number))]
-}
-
-#let figure-counter-of-kind(kind) = {
-  if kind == image {
-    counter(figure.where(kind: image))
-  } else if kind == table {
-    counter(figure.where(kind: table))
-  } else if kind == "algorithm" {
-    counter(figure.where(kind: "algorithm"))
-  } else {
-    none
-  }
-}
-
-#let figure-supplement-of-kind(kind) = {
-  if kind == image {
-    [图]
-  } else if kind == table {
-    [表]
-  } else if kind == "algorithm" {
-    [算法]
-  } else {
-    none
-  }
-}
-
-#let figure-number-at(kind, loc) = {
-  let ctr = figure-counter-of-kind(kind)
-  if ctr == none {
-    none
-  } else {
-    chaptered-number(chapter-at(loc), counter-number-at(ctr, loc))
-  }
-}
 
 #let AcronymList(
   items,
@@ -395,6 +148,246 @@
     ))),
     date: prefer-value(date, fallback: info-meta.at("date", default: none)),
   )
+  let content-or-empty(value) = if value == none { [] } else { value }
+  let cover-date(date) = if date == none { [] } else { fakebold[#date] }
+  let default-integrity-statement-body(info) = [
+    本人声明所呈交的毕业设计（论文），题目《#content-or-empty(info.title-cn)》是本人在指导教师的指导下，独立进行研究工作所取得的成果。尽我所知，除了文中特别加以标注和致谢中所列内容外，论文中不包含其他人已经发表或撰写过的研究成果，也不包含为获得北京邮电大学或其他教育机构的学位或证书而使用过的材料。
+
+    申请学位论文与资料若有不实之处，本人承担一切相关责任。
+  ]
+  let default-authorization-statement-body() = [
+    本人完全了解并同意北京邮电大学有关保留、使用学位论文的规定，即：北京邮电大学拥有以下关于学位论文的无偿使用权，具体包括：学校有权保留并向国家有关部门或机构送交学位论文，有权允许学位论文被查阅和借阅；学校可以公布学位论文的全部或部分内容，有权允许采用影印、缩印或其它复制手段保存、汇编学位论文，将学位论文的全部或部分内容编入有关数据库进行检索。（保密的学位论文在解密后遵守此规定）
+  ]
+  let make-cover-page(info) = {
+    let title-cn = content-or-empty(info.title-cn)
+    let date = info.date
+
+    {
+      // Cover layout adapted closely from WongWang/typst-BUPT-Bachelor-Thesis (MIT).
+      set page(header: none, footer: none, numbering: none)
+      set par(leading: 0.25em, first-line-indent: 0pt, spacing: 0.25em)
+
+      v(0.04mm)
+      align(center)[
+        #box(inset: (left: 6.4mm))[
+          #image("images/bupt-name.pdf", width: 94.75mm)
+        ]
+      ]
+
+      v(16.7mm)
+      align(center)[
+        #box(inset: (left: 7.0mm))[
+          #text(font: FontHei, size: 26pt)[
+            #fakebold[本#h(0.5em)科#h(0.5em)毕#h(0.5em)业#h(0.5em)设#h(0.5em)计（#h(0.5em)论#h(0.5em)文#h(0.5em)）#h(0.8em)]
+          ]
+        ]
+      ]
+
+      v(13.5mm)
+      figure(
+        image("images/bupt-logo.pdf"),
+      )
+
+      v(11.1mm)
+      {
+        let line-length = 100.8mm
+        let line-offset = 3.5pt
+        set text(font: FontHeiCN, size: FONTSIZE.三号)
+        set par(leading: 0.75em)
+        context {
+          let title-body = fakebold[#title-cn]
+          let title-w = measure(title-body).width
+          let two-lines = title-w > line-length
+          let content-h = measure(box(width: line-length, align(center, title-body))).height
+          let single-h = measure(box(width: line-length, align(center, fakebold[题]))).height
+
+          align(center)[
+            #box(inset: (left: 2.9mm))[
+              #fakebold[题目：]#box(width: line-length, baseline: content-h - single-h)[
+                #align(center)[#title-body]
+                #place(left + top, dy: content-h + line-offset)[
+                  #line(length: line-length, stroke: 0.5pt)
+                ]
+                #if two-lines {
+                  let first-line-h = single-h
+                  place(left + top, dy: first-line-h + line-offset)[
+                    #line(length: line-length, stroke: 0.5pt)
+                  ]
+                }
+              ]
+            ]
+          ]
+        }
+      }
+
+      v(18.0mm)
+      {
+        let lw = 4em
+        let vw = 12em
+
+        set text(size: FONTSIZE.三号)
+        let make-label(s) = {
+          let chars = s.clusters()
+          box(width: lw, text[#fakebold[#chars.join(h(1fr))]])
+        }
+        let info-row(label, value) = (
+          make-label(label),
+          box(width: vw)[
+            #align(center)[#fakebold[#content-or-empty(value)]]
+            #place(left + bottom, dy: 0.5mm)[
+              #line(length: 100%, stroke: 0.5pt)
+            ]
+          ],
+        )
+        align(center)[
+          #box(inset: (right: 2mm))[
+            #grid(
+              columns: (lw, vw),
+              column-gutter: 0cm,
+              row-gutter: 5.72mm + 3.5pt,
+              align: (left, left),
+              ..info-row("姓名", info.author),
+              ..info-row("学院", info.school),
+              ..info-row("专业", info.major),
+              ..info-row("班级", info.class),
+              ..info-row("学号", info.student-id),
+              ..info-row("指导教师", info.supervisor),
+            )
+          ]
+        ]
+      }
+
+      v(17.8mm)
+      align(center)[
+        #box(inset: (left: 14.0mm))[
+          #text(font: FontSongCN, size: FONTSIZE.三号)[
+            #cover-date(date)
+          ]
+        ]
+      ]
+      pagebreak()
+    }
+  }
+  let make-integrity-statement-page(
+    info,
+    integrity-body: none,
+    authorization-body: none,
+    author-signature: none,
+    author-sign-date: none,
+    advisor-signature: none,
+    advisor-sign-date: none,
+  ) = {
+    let integrity-body = prefer-value(integrity-body, default: default-integrity-statement-body(info))
+    let authorization-body = prefer-value(authorization-body, default: default-authorization-statement-body())
+
+    {
+      // Statement page adapted closely from WongWang/typst-BUPT-Bachelor-Thesis (MIT).
+      set page(header: none, footer: none, numbering: none)
+      set par(first-line-indent: 0em, spacing: 0.25em, leading: 0.25em)
+
+      v(12mm)
+      align(center, text(size: FONTSIZE.小三)[
+        #fakebold[北#h(0.5em)京#h(0.5em)邮#h(0.5em)电#h(0.5em)大#h(0.5em)学]
+      ])
+      v(5.36mm)
+      align(center, text(size: FONTSIZE.小三)[
+        #fakebold[本科毕业设计（论文）诚信声明]
+      ])
+
+      v(1.03mm)
+      set par(first-line-indent: 2em, leading: 1.26em, spacing: 1.26em)
+      set text(size: FONTSIZE.小四)
+      integrity-body
+
+      v(7.32mm)
+      [
+        #h(0.02mm) 本人签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
+          #align(center + horizon)[#content-or-empty(author-signature)]
+        ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
+          #align(center + horizon)[#content-or-empty(author-sign-date)]
+        ]
+      ]
+
+      v(28.23mm)
+      align(center, text(size: FONTSIZE.小三)[
+        #fakebold[关于论文使用授权的说明]
+      ])
+
+      v(-0.34mm)
+      authorization-body
+
+      v(7.35mm)
+      [
+        #h(0.02mm) 本人签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
+          #align(center + horizon)[#content-or-empty(author-signature)]
+        ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
+          #align(center + horizon)[#content-or-empty(author-sign-date)]
+        ]
+      ]
+      v(7.32mm)
+      [
+        #h(0.02mm) 导师签名：#box(width: 42.34mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
+          #align(center + horizon)[#content-or-empty(advisor-signature)]
+        ] #h(9.52mm) 日期：#box(width: 48.69mm, outset: (bottom: 2pt), stroke: (bottom: 0.5pt))[
+          #align(center + horizon)[#content-or-empty(advisor-sign-date)]
+        ]
+      ]
+      pagebreak()
+    }
+  }
+  let counter-number-at(ctr, loc, context-name: "counter") = {
+    let nums = ctr.at(loc)
+    assert(nums.len() > 0, message: "missing " + context-name + " context for " + repr(loc))
+    nums.first()
+  }
+  let chapter-at(loc) = counter-number-at(counter(heading), loc, context-name: "heading")
+  let current-chapter() = {
+    let nums = counter(heading).get()
+    assert(nums.len() > 0, message: "missing current heading context for chapter-based numbering")
+    nums.first()
+  }
+  let equation-number-from-args(..nums) = {
+    let positional = nums.pos()
+    assert(positional.len() > 0, message: "missing equation counter value in numbering callback")
+    positional.first()
+  }
+  let assert-supported-figure-kind(kind) = {
+    assert(
+      kind == image or kind == table or kind == "algorithm",
+      message: "unsupported figure kind for chaptered numbering: " + repr(kind),
+    )
+  }
+  let equation-marker-at(loc) = {
+    let chapter = chapter-at(loc)
+    let number = counter-number-at(counter(math.equation), loc, context-name: "equation counter")
+    text(font: FontSong)[(#chaptered-number(chapter, number))]
+  }
+  let figure-counter-of-kind(kind) = {
+    assert-supported-figure-kind(kind)
+    if kind == image {
+      counter(figure.where(kind: image))
+    } else if kind == table {
+      counter(figure.where(kind: table))
+    } else {
+      counter(figure.where(kind: "algorithm"))
+    }
+  }
+  let figure-supplement-of-kind(kind) = {
+    assert-supported-figure-kind(kind)
+    if kind == image {
+      [图]
+    } else if kind == table {
+      [表]
+    } else {
+      [算法]
+    }
+  }
+  let figure-number-at(kind, loc) = {
+    chaptered-number(
+      chapter-at(loc),
+      counter-number-at(figure-counter-of-kind(kind), loc, context-name: "figure counter"),
+    )
+  }
   // 页面配置
   set page(
     paper: "a4",
@@ -421,7 +414,7 @@
   // 数学公式
   set math.equation(
     numbering: (..nums) => context {
-      let num = if nums.pos().len() > 0 { nums.pos().first() } else { 0 }
+      let num = equation-number-from-args(..nums)
       if equation-numbering-location == right {
         text(font: FontSong)[(#chaptered-number(current-chapter(), num))]
       } else {
@@ -453,16 +446,12 @@
     let el = it.element
     if el != none and el.func() == math.equation {
       let loc = el.location()
-      link(loc)[式 #chaptered-number(chapter-at(loc), counter-number-at(counter(math.equation), loc))]
+      link(loc)[式 #chaptered-number(chapter-at(loc), counter-number-at(counter(math.equation), loc, context-name: "equation counter"))]
     } else if el != none and el.func() == figure {
       let loc = el.location()
       let supplement = figure-supplement-of-kind(el.kind)
       let number = figure-number-at(el.kind, loc)
-      if supplement != none and number != none {
-        link(loc)[#supplement #number]
-      } else {
-        it
-      }
+      link(loc)[#supplement #number]
     } else if el != none and el.func() == heading {
       let loc = el.location()
       let numbers = counter(heading).at(loc)
@@ -707,7 +696,7 @@
   show figure.where(kind: image): set figure(
     supplement: [图],
     numbering: (..nums) => context {
-      let num = if nums.pos().len() > 0 { nums.pos().first() } else { 0 }
+      let num = equation-number-from-args(..nums)
       chaptered-number(current-chapter(), num)
     },
   )
@@ -719,7 +708,7 @@
   show figure.where(kind: table): set figure(
     supplement: [表],
     numbering: (..nums) => context {
-      let num = if nums.pos().len() > 0 { nums.pos().first() } else { 0 }
+      let num = equation-number-from-args(..nums)
       chaptered-number(current-chapter(), num)
     },
   )
