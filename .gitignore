@@ -3,6 +3,7 @@
 *.ttf
 *.otf
 *.exe
-*.pdf
+/*.pdf
+build/
 .DS_Store
 ref/
