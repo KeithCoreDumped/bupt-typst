@@ -154,6 +154,22 @@
   let default-authorization-statement-body() = [
     本人完全了解并同意北京邮电大学有关保留、使用学位论文的规定，即：北京邮电大学拥有以下关于学位论文的无偿使用权，具体包括：学校有权保留并向国家有关部门或机构送交学位论文，有权允许学位论文被查阅和借阅；学校可以公布学位论文的全部或部分内容，有权允许采用影印、缩印或其它复制手段保存、汇编学位论文，将学位论文的全部或部分内容编入有关数据库进行检索。（保密的学位论文在解密后遵守此规定）
   ]
+  let make-cover-title(title-cn) = {
+    if type(title-cn) == str {
+      let chars = title-cn.clusters()
+      if chars.len() > 16 {
+        fakebold[
+          #chars.slice(0, 16).join()
+          #linebreak()
+          #chars.slice(16).join()
+        ]
+      } else {
+        fakebold(title-cn)
+      }
+    } else {
+      fakebold(title-cn)
+    }
+  }
   let make-cover-page(info) = {
     let title-cn = content-or-empty(info.title-cn)
     let date = info.date
@@ -191,9 +207,12 @@
         set text(font: FontHeiCN, size: FONTSIZE.三号)
         set par(leading: 0.75em)
         context {
-          let title-body = fakebold[#title-cn]
-          let title-w = measure(title-body).width
-          let two-lines = title-w > line-length
+          let title-body = make-cover-title(title-cn)
+          let two-lines = if type(title-cn) == str {
+            title-cn.clusters().len() > 16
+          } else {
+            measure(title-body).width > line-length
+          }
           let content-h = measure(box(width: line-length, align(center, title-body))).height
           let single-h = measure(box(width: line-length, align(center, fakebold[题]))).height
 
