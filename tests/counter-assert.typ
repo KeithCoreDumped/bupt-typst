@@ -25,6 +25,45 @@
 }
 
 #let chaptered-number(chapter, number) = str(chapter) + "-" + str(number)
+#let appendix-number(appendix, number) = "附" + str(appendix) + "-" + str(number)
+#let heading-text(body) = repr(body)
+#let is-appendix-heading-body(body) = heading-text(body).contains("附录")
+
+#let nearest-level-1-heading-before(loc) = {
+  let headings = query(selector(heading.where(level: 1)).before(loc))
+  if headings.len() == 0 {
+    none
+  } else {
+    headings.last()
+  }
+}
+
+#let appendix-index-at(loc) = {
+  let headings = query(selector(heading.where(level: 1)).before(loc))
+  headings.filter(h => is-appendix-heading-body(h.body)).len()
+}
+
+#let is-appendix-context-at(loc) = {
+  let nearest = nearest-level-1-heading-before(loc)
+  assert(nearest != none, message: "missing level-1 heading context for " + repr(loc))
+  is-appendix-heading-body(nearest.body)
+}
+
+#let numbered-display-at(loc, number) = {
+  if is-appendix-context-at(loc) {
+    appendix-number(appendix-index-at(loc), number)
+  } else {
+    chaptered-number(chapter-at(loc), number)
+  }
+}
+
+#let figure-number-display-at(loc, number) = {
+  if is-appendix-context-at(loc) {
+    str(appendix-index-at(loc)) + "-" + str(number)
+  } else {
+    chaptered-number(chapter-at(loc), number)
+  }
+}
 
 #let figure-counter-of-kind(kind) = {
   if kind == image {
@@ -41,13 +80,13 @@
 #let figure-number-at(kind, loc) = {
   let ctr = figure-counter-of-kind(kind)
   assert(ctr != none, message: "unsupported figure kind in counter test")
-  chaptered-number(chapter-at(loc), counter-number-at(ctr, loc))
+  figure-number-display-at(loc, counter-number-at(ctr, loc))
 }
 
 #let assert-eq-number(label, expected-counter, expected-display) = context {
   let loc = locate-one(label)
   let counter-value = counter-number-at(counter(math.equation), loc)
-  let display-value = chaptered-number(chapter-at(loc), counter-value)
+  let display-value = numbered-display-at(loc, counter-value)
   assert.eq(
     counter-value,
     expected-counter,
@@ -106,14 +145,14 @@
   let el = element-one(label)
   let loc = el.location()
   if el.func() == math.equation {
-    "式 " + chaptered-number(chapter-at(loc), counter-number-at(counter(math.equation), loc))
+    "式 " + numbered-display-at(loc, counter-number-at(counter(math.equation), loc))
   } else if el.func() == figure {
     let supplement = if el.kind == image {
-      "图"
+      if is-appendix-context-at(loc) { "附图" } else { "图" }
     } else if el.kind == table {
-      "表"
+      if is-appendix-context-at(loc) { "附表" } else { "表" }
     } else if el.kind == "algorithm" {
-      "算法"
+      if is-appendix-context-at(loc) { "附算法" } else { "算法" }
     } else {
       panic("unsupported figure kind in ref text test")
     }
@@ -225,6 +264,72 @@
 
   跨章引用：@fig:one，@tab:one，@eq:one，@algo:one，@sec:sub2。
 
+  #show: Appendix.with()
+
+  = 附录1 附录测试一 <app:one>
+
+  #figure(
+    rect(width: 3cm, height: 1.8cm, fill: luma(190)),
+    caption: [附录测试图一],
+  )<fig:app-one>
+
+  #figure(
+    caption: [附录测试表一],
+    table(
+      columns: 2,
+      [E], [F],
+      [5], [6],
+    ),
+  )<tab:app-one>
+
+  $
+    p + q = r
+  $ <eq:app-one>
+
+  #figure(
+    kind: "algorithm",
+    supplement: [算法],
+    caption: [附录测试算法一],
+    algo[
+      输入：$p$ \
+      输出：$q$ \
+      若 $p > 0$ \
+      $q = p$ \
+    ],
+  )<algo:app-one>
+
+  = 附录2 附录测试二 <app:two>
+
+  $
+    u + v = w
+  $ <eq:app-two>
+
+  #figure(
+    rect(width: 3cm, height: 1.8cm, fill: luma(170)),
+    caption: [附录测试图二],
+  )<fig:app-two>
+
+  #figure(
+    caption: [附录测试表二],
+    table(
+      columns: 2,
+      [G], [H],
+      [7], [8],
+    ),
+  )<tab:app-two>
+
+  #figure(
+    kind: "algorithm",
+    supplement: [算法],
+    caption: [附录测试算法二],
+    algo[
+      输入：$u$ \
+      输出：$v$ \
+      若 $u > 0$ \
+      $v = u$ \
+    ],
+  )<algo:app-two>
+
   #context {
     assert-heading-number(<sec:ch1>, 1, "第一章")
     assert-heading-number(<sec:sub1>, 1, "1.1")
@@ -250,6 +355,22 @@
     assert-ref-text(<fig:two>, "图 2-1")
     assert-ref-text(<tab:two>, "表 2-1")
     assert-ref-text(<algo:two>, "算法 2-1")
+    assert-eq-number(<eq:app-one>, 1, "附1-1")
+    assert-figure-number(<fig:app-one>, image, "1-1")
+    assert-figure-number(<tab:app-one>, table, "1-1")
+    assert-figure-number(<algo:app-one>, "algorithm", "1-1")
+    assert-ref-text(<eq:app-one>, "式 附1-1")
+    assert-ref-text(<fig:app-one>, "附图 1-1")
+    assert-ref-text(<tab:app-one>, "附表 1-1")
+    assert-ref-text(<algo:app-one>, "附算法 1-1")
+    assert-eq-number(<eq:app-two>, 1, "附2-1")
+    assert-figure-number(<fig:app-two>, image, "2-1")
+    assert-figure-number(<tab:app-two>, table, "2-1")
+    assert-figure-number(<algo:app-two>, "algorithm", "2-1")
+    assert-ref-text(<eq:app-two>, "式 附2-1")
+    assert-ref-text(<fig:app-two>, "附图 2-1")
+    assert-ref-text(<tab:app-two>, "附表 2-1")
+    assert-ref-text(<algo:app-two>, "附算法 2-1")
     assert-ref-text(<sec:ch1>, "第一章")
     assert-ref-text(<sec:sub1>, "1.1节")
     assert-ref-text(<sec:sub2>, "2.1节")

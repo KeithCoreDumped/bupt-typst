@@ -40,7 +40,7 @@ typst compile --font-path path/to/fonts main.typ
 - 中文摘要、英文摘要
 - 目录
 - 正文章节标题样式与页眉页脚
-- 图、表、公式、算法按章编号与中文引用
+- 图、表、公式、算法按章编号与中文引用，附录内图/表/算法按 `附图 X-Y`、`附表 X-Y`、`附算法 X-Y` 呈现
 - 参考文献
 - 附录
 - 附录内手工维护的缩略语表包装函数
@@ -84,6 +84,12 @@ typst compile --font-path path/to/fonts main.typ
 - `plagiarism-check-only` 可选 `true` / `false`。设为 `true` 时只输出查重范围：篇名、中文摘要（含关键词）、英文摘要（含关键词）和正文；自动排除封面、声明页、目录、参考文献与附录。
 - `integrity-body`、`authorization-body` 可分别覆盖默认的诚信声明和论文使用授权说明正文。
 - `author-signature`、`author-sign-date`、`advisor-signature`、`advisor-sign-date` 可用于预填声明页签名与日期。
+
+附录编号说明：
+
+- 附录一级标题仍由用户手工写成 `附录1 ...`、`附录2 ...` 这类形式。
+- 附录内图、表、算法会自动编号并显示为 `附图 1-1`、`附表 1-1`、`附算法 2-1` 等。
+- 附录内公式当前显示与引用为 `附1-1`、`式 附1-1` 这类形式。
 
 最小示例：
 

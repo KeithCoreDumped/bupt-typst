@@ -83,7 +83,6 @@
 }
 
 #let chaptered-number(chapter, number) = str(chapter) + "-" + str(number)
-
 #let AcronymList(
   items,
   abbreviation-width: 2.4cm,
@@ -135,6 +134,9 @@
   body,
 ) = {
   assert((right, right + bottom).contains(equation-numbering-location), message: "can be only right or right + bottom")
+  let appendix-number(appendix, number) = "附" + str(appendix) + "-" + str(number)
+  let heading-text(body) = repr(body)
+  let is-appendix-heading-body(body) = heading-text(body).contains("附录")
   let info = (
     title-cn: prefer-value(title-cn, fallback: prefer-value(titleZH, fallback: title)),
     title-en: prefer-value(title-en, fallback: titleEN),
@@ -357,11 +359,70 @@
     assert(nums.len() > 0, message: "missing " + context-name + " context for " + repr(loc))
     nums.first()
   }
-  let chapter-at(loc) = counter-number-at(counter(heading), loc, context-name: "heading")
-  let current-chapter() = {
-    let nums = counter(heading).get()
-    assert(nums.len() > 0, message: "missing current heading context for chapter-based numbering")
-    nums.first()
+  let nearest-level-1-heading-before(loc) = {
+    let headings = query(selector(heading.where(level: 1)).before(loc))
+    if headings.len() == 0 {
+      none
+    } else {
+      headings.last()
+    }
+  }
+  let appendix-index-at(loc) = {
+    let headings = query(selector(heading.where(level: 1)).before(loc))
+    headings.filter(h => is-appendix-heading-body(h.body)).len()
+  }
+  let is-appendix-context-at(loc) = {
+    let nearest = nearest-level-1-heading-before(loc)
+    assert(nearest != none, message: "missing level-1 heading context for location " + repr(loc))
+    is-appendix-heading-body(nearest.body)
+  }
+  let numbered-display-at(loc, number) = {
+    if is-appendix-context-at(loc) {
+      let appendix = appendix-index-at(loc)
+      assert(appendix > 0, message: "missing appendix index for location " + repr(loc))
+      appendix-number(appendix, number)
+    } else {
+      chaptered-number(
+        counter-number-at(counter(heading), loc, context-name: "heading"),
+        number,
+      )
+    }
+  }
+  let appendix-figure-number-at(loc, number) = {
+    str(appendix-index-at(loc)) + "-" + str(number)
+  }
+  let figure-number-display-at(loc, number) = {
+    if is-appendix-context-at(loc) {
+      appendix-figure-number-at(loc, number)
+    } else {
+      chaptered-number(
+        counter-number-at(counter(heading), loc, context-name: "heading"),
+        number,
+      )
+    }
+  }
+  let figure-supplement-of-kind(kind, loc: none) = {
+    let appendix = loc != none and is-appendix-context-at(loc)
+    if kind == image {
+      if appendix { [附图] } else { [图] }
+    } else if kind == table {
+      if appendix { [附表] } else { [表] }
+    } else {
+      assert(kind == "algorithm", message: "unsupported figure kind for chaptered numbering: " + repr(kind))
+      if appendix { [附算法] } else { [算法] }
+    }
+  }
+  let current-numbering-prefix() = context {
+    let loc = here()
+    let nearest = nearest-level-1-heading-before(loc)
+    assert(nearest != none, message: "missing current level-1 heading context for numbering")
+    if is-appendix-heading-body(nearest.body) {
+      let appendix = appendix-index-at(loc)
+      assert(appendix > 0, message: "missing appendix index for location " + repr(loc))
+      "附" + str(appendix)
+    } else {
+      str(counter-number-at(counter(heading), loc, context-name: "heading"))
+    }
   }
   let equation-number-from-args(..nums) = {
     let positional = nums.pos()
@@ -375,9 +436,8 @@
     )
   }
   let equation-marker-at(loc) = {
-    let chapter = chapter-at(loc)
     let number = counter-number-at(counter(math.equation), loc, context-name: "equation counter")
-    text(font: FontSong)[(#chaptered-number(chapter, number))]
+    text(font: FontSong)[(#numbered-display-at(loc, number))]
   }
   let figure-counter-of-kind(kind) = {
     assert-supported-figure-kind(kind)
@@ -389,19 +449,9 @@
       counter(figure.where(kind: "algorithm"))
     }
   }
-  let figure-supplement-of-kind(kind) = {
-    assert-supported-figure-kind(kind)
-    if kind == image {
-      [图]
-    } else if kind == table {
-      [表]
-    } else {
-      [算法]
-    }
-  }
   let figure-number-at(kind, loc) = {
-    chaptered-number(
-      chapter-at(loc),
+    figure-number-display-at(
+      loc,
       counter-number-at(figure-counter-of-kind(kind), loc, context-name: "figure counter"),
     )
   }
@@ -433,7 +483,7 @@
     numbering: (..nums) => context {
       let num = equation-number-from-args(..nums)
       if equation-numbering-location == right {
-        text(font: FontSong)[(#chaptered-number(current-chapter(), num))]
+        text(font: FontSong)[(#current-numbering-prefix()-#num)]
       } else {
         []
       }
@@ -463,10 +513,10 @@
     let el = it.element
     if el != none and el.func() == math.equation {
       let loc = el.location()
-      link(loc)[式 #chaptered-number(chapter-at(loc), counter-number-at(counter(math.equation), loc, context-name: "equation counter"))]
+      link(loc)[式 #numbered-display-at(loc, counter-number-at(counter(math.equation), loc, context-name: "equation counter"))]
     } else if el != none and el.func() == figure {
       let loc = el.location()
-      let supplement = figure-supplement-of-kind(el.kind)
+      let supplement = figure-supplement-of-kind(el.kind, loc: loc)
       let number = figure-number-at(el.kind, loc)
       link(loc)[#supplement #number]
     } else if el != none and el.func() == heading {
@@ -722,10 +772,10 @@
 
   // 图
   show figure.where(kind: image): set figure(
-    supplement: [图],
+    supplement: context figure-supplement-of-kind(image, loc: here()),
     numbering: (..nums) => context {
       let num = equation-number-from-args(..nums)
-      chaptered-number(current-chapter(), num)
+      figure-number-display-at(here(), num)
     },
   )
   show figure.where(kind: image): set figure.caption(
@@ -734,10 +784,10 @@
 
   // 表
   show figure.where(kind: table): set figure(
-    supplement: [表],
+    supplement: context figure-supplement-of-kind(table, loc: here()),
     numbering: (..nums) => context {
       let num = equation-number-from-args(..nums)
-      chaptered-number(current-chapter(), num)
+      figure-number-display-at(here(), num)
     },
   )
   show figure.where(kind: table): set figure.caption(
@@ -794,11 +844,11 @@
 
   // 算法
   show figure.where(kind: "algorithm"): set figure(
-    supplement: [算法],
+    supplement: context figure-supplement-of-kind("algorithm", loc: here()),
 
     numbering: (..nums) => context {
       let num = if nums.pos().len() > 0 { nums.pos().first() } else { 0 }
-      chaptered-number(current-chapter(), num)
+      figure-number-display-at(here(), num)
     },
   )
   show figure.where(kind: "algorithm"): set figure.caption(
