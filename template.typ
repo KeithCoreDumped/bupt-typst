@@ -83,6 +83,102 @@
 }
 
 #let chaptered-number(chapter, number) = str(chapter) + "-" + str(number)
+
+// 三线表 helper：跨页自动续表，可选表注
+//   caption:       表标题
+//   label:         可选 <xxx>，附在 figure 之后
+//   note:          可选表注内容
+//   note-gap:      表注与底线的可见距离，默认 0.5mm
+//   note-size:     表注字号，默认 0.9em（相对正文）
+//   note-leading:  表注行距，默认 auto（沿用环境 par leading）
+//   header:        表头行 cells（以 array 形式传入）
+//   align:         单值 / 每列数组 / 函数；默认 center
+//   breakable:     是否允许跨页，默认 true
+//   其余命名参数（columns / inset / fill / column-gutter / ...）
+//   和正文行 cells 通过 ..args 透传给底层 table()
+#let bupt-table(
+  caption: none,
+  label: none,
+  note: none,
+  note-gap: 0.5mm,
+  note-size: 0.9em,
+  note-leading: auto,
+  header: (),
+  align: center,
+  breakable: true,
+  ..args,
+) = {
+  let cols = args.named().at("columns", default: header)
+  let n-cols = if type(cols) == int { cols } else { cols.len() }
+  assert(n-cols > 0, message: "bupt-table: 无法推断列数，请显式传入 columns 或 header")
+
+  // 续表标题：通过比较当前位置与所在 figure 的页码决定是否渲染
+  let cont-cell = table.cell(colspan: n-cols, inset: 0pt)[
+    #context {
+      let figs = query(selector(figure.where(kind: table)).before(here()))
+      assert(figs.len() > 0, message: "bupt-table: 未找到外层 figure，请勿单独调用")
+      let fig = figs.last()
+      if here().page() != fig.location().page() {
+        block(width: 100%, inset: (top: 1.12mm, bottom: 2.38mm))[
+          #set std.align(center)
+          #set text(font: FontKai, size: FONTSIZE.五号)
+          续#fig.supplement#h(1em)#fig.counter.display(fig.numbering)#h(1em)#caption
+        ]
+      }
+    }
+  ]
+
+  let tbl = table(
+    stroke: none,
+    align: align,
+    ..args.named(),
+    table.header(
+      cont-cell,
+      table.hline(stroke: 0.5pt),
+      ..header,
+      table.hline(stroke: 0.5pt),
+    ),
+    ..args.pos(),
+    table.footer(
+      repeat: true,
+      table.hline(stroke: 0.5pt),
+      // 触发分页：底部预留 1.8mm，超过下边距即换页
+      table.cell(colspan: n-cols, inset: (bottom: 1.8mm))[],
+    ),
+  )
+
+  let body = if note != none {
+    let par-opts = if note-leading != auto { (leading: note-leading) } else { (:) }
+    grid(
+      columns: 1,
+      align: center,
+      tbl,
+      // 抵消 footer 占位 cell 的 1.8mm 下边距，最终可见间距 = note-gap
+      v(-1.8mm + note-gap),
+      layout(size => {
+        let m = measure(width: size.width, tbl)
+        box(width: m.width)[
+          #std.align(left)[
+            #set par(first-line-indent: 0em, ..par-opts)
+            #text(size: note-size)[注：#note]
+          ]
+        ]
+      }),
+    )
+  } else {
+    tbl
+  }
+
+  let fig = figure(body, caption: caption, kind: table)
+  let labeled = if label != none { [#fig#label] } else { fig }
+  if breakable {
+    block(sticky: true, width: 100%, labeled)
+  } else {
+    // 局部覆盖全局 breakable=true 的 show 规则
+    show figure.where(kind: table): set block(breakable: false)
+    labeled
+  }
+}
 #let AcronymList(
   items,
   abbreviation-width: 2.4cm,
@@ -802,45 +898,8 @@
   )
   set table.hline(stroke: 0.5pt)
 
-  // 表格后处理：可选表注
-  show figure.where(kind: table): it => context {
-    let next-figs = query(selector(figure.where(kind: table)).after(here()))
-    let next-fig-loc = if next-figs.len() > 0 {
-      next-figs.first().location()
-    } else {
-      none
-    }
-    let sel = if next-fig-loc == none {
-      selector(metadata).after(here())
-    } else {
-      selector(metadata).after(here()).before(next-fig-loc)
-    }
-    let metas = query(sel)
-    let notes = metas.filter(s => s.value.role == "tablenote").map(s => s.value.body)
-    let note = if notes.len() > 0 { notes.first() } else { none }
-
-    if note != none {
-      block[
-        #it
-        #v(3pt, weak: true) // 表注和表的距离
-        #layout(size => {
-          // 获取父元素宽度，否则当传入相对长度时measure按照无限大计算
-          let m = measure(width: size.width, it)
-          // 固定宽度盒子，避免撑大
-          box(width: m.width)[
-            #align(left)[
-              #set par(first-line-indent: 0em) // 移除表注的首行缩进
-              #text(size: 0.9em)[注：#note]
-            ]
-          ]
-        })
-        #let width = measure(it).width
-
-      ]
-    } else {
-      it
-    }
-  }
+  // 表格跨页：允许 figure 外层 block 分页，同时避免仅标题落在页尾
+  show figure.where(kind: table): set block(breakable: true, sticky: true)
 
   // 算法
   show figure.where(kind: "algorithm"): set figure(
@@ -915,9 +974,6 @@
     body
   }
 }
-
-// 表注
-#let tablenote(body) = metadata((role: "tablenote", body: body))
 
 #let algo = algo.with(
   indent-size: 1.5em,

@@ -41,6 +41,7 @@ typst compile --font-path path/to/fonts main.typ
 - 目录
 - 正文章节标题样式与页眉页脚
 - 图、表、公式、算法按章编号与中文引用，附录内图/表/算法按 `附图 X-Y`、`附表 X-Y`、`附算法 X-Y` 呈现
+- `bupt-table` 三线表 / 续表 helper：跨页自动重复表头并显示"续表 X-Y 标题"，支持可选表注
 - 参考文献
 - 附录
 - 附录内手工维护的缩略语表包装函数
@@ -49,7 +50,6 @@ typst compile --font-path path/to/fonts main.typ
 
 ## 暂不支持
 
-- 新的三线表 / 续表 API
 - 任务书、成绩评定表、开题报告、中期检查表等过程性材料
 - 正文缩略语首次出现自动展开 / 自动追踪
 
@@ -142,6 +142,49 @@ typst compile --font-path path/to/fonts main.typ
 ```
 
 `AcronymList(...)` 只负责按 A-Z 排序并渲染两列表格，不带表头。左列是英文缩写，右列是解释文本；推荐直接写成二元组 `(缩写, 解释)`。如果需要调节列宽，可用 `abbreviation-width:`；也可以通过 `align:`、`inset:`、`stroke:` 做轻量调整。
+
+## 三线表 / 续表
+
+`bupt-table(...)` 是封装好的三线表 helper：自动按章编号、附录中自动变成"附表 N-Y"、跨页时在续页顶部重复表头并显示"续表 X-Y 标题"，并支持表注。
+
+最小示例：
+
+```typst
+#bupt-table(
+  caption: [实验参数设置详情],
+  label: <tab4-1>,
+  note: [\*代表本章复现结果],
+  columns: (25%,) * 3,
+  align: center,
+  header: ([参数名称], [符号], [设置值]),
+  [采样步数], [$T$], [100],
+  [学习率], [$eta$], [1e-4],
+)
+```
+
+参数：
+
+- `caption:` 表标题
+- `label:` 可选 `<xxx>`，用于交叉引用（`@tab4-1` 会渲染为"表 4-1"）
+- `note:` 可选表注内容，渲染为"注：..."紧贴底线左对齐
+- `note-gap:` 表注与底线的可见距离，默认 `0.5mm`
+- `note-size:` 表注字号，默认 `0.9em`
+- `note-leading:` 表注行距，默认 `auto`（沿用环境）
+- `header:` 表头行 cells（数组形式）
+- `align:` 单值 / 每列数组 / 函数；默认 `center`
+- `breakable:` 是否允许跨页，默认 `true`
+- 其余命名参数（`columns`、`inset`、`fill`、`column-gutter` 等）和正文 cells 透传给底层 `table()`
+
+按列对齐：
+
+```typst
+#bupt-table(
+  caption: [按列对齐示例],
+  align: (left, center, right),
+  header: ([方法], [指标], [值]),
+  [本文方法], [PA], [0.85],
+)
+```
 
 ## 引用辅助
 
