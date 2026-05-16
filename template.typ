@@ -94,6 +94,7 @@
 //   header:        表头行 cells（以 array 形式传入）
 //   align:         单值 / 每列数组 / 函数；默认 center
 //   breakable:     是否允许跨页，默认 true
+//   probe-extra:   续表探测时额外预留的缓冲高度，默认 4mm
 //   其余命名参数（columns / inset / fill / column-gutter / ...）
 //   和正文行 cells 通过 ..args 透传给底层 table()
 #let bupt-table(
@@ -106,6 +107,7 @@
   header: (),
   align: center,
   breakable: true,
+  probe-extra: 4mm,
   ..args,
 ) = {
   let cols = args.named().at("columns", default: header)
@@ -191,9 +193,9 @@
   let labeled = if label != none { [#fig#label] } else { fig }
   if breakable {
     // 预留“表题 + 表头 + 首行表体”的高度；若页尾放不下，则整块自动挪到下一页，
-    // 避免上一页只剩表题、下一页直接从“续表”开始。
+    // 并额外留出少量缓冲，避免临界情况下上一页只剩表题、下一页直接从“续表”开始。
     layout(size => {
-      let guard-height = measure(width: size.width, probe-fig).height
+      let guard-height = measure(width: size.width, probe-fig).height + probe-extra
       [
         #block(width: 100%, height: guard-height, breakable: false)[]
         #v(-guard-height)
