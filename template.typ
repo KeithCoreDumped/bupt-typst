@@ -101,7 +101,7 @@
   label: none,
   note: none,
   note-gap: 0.5mm,
-  note-size: 0.9em,
+  note-size: 9pt,
   note-leading: auto,
   header: (),
   align: center,
@@ -109,8 +109,11 @@
   ..args,
 ) = {
   let cols = args.named().at("columns", default: header)
+  let body-cells = args.pos()
   let n-cols = if type(cols) == int { cols } else { cols.len() }
   assert(n-cols > 0, message: "bupt-table: 无法推断列数，请显式传入 columns 或 header")
+  let probe-row-len = if body-cells.len() < n-cols { body-cells.len() } else { n-cols }
+  let probe-row = body-cells.slice(0, probe-row-len)
 
   // 续表标题：通过比较当前位置与所在 figure 的页码决定是否渲染
   let cont-cell = table.cell(colspan: n-cols, inset: 0pt)[
@@ -122,11 +125,12 @@
         block(width: 100%, inset: (top: 1.12mm, bottom: 2.38mm))[
           #set std.align(center)
           #set text(font: FontKai, size: FONTSIZE.五号)
-          续#fig.supplement#h(1em)#fig.counter.display(fig.numbering)#h(1em)#caption
+          续#fig.supplement #fig.counter.display(fig.numbering)#h(1em)#caption
         ]
       }
     }
   ]
+  let probe-cont-cell = table.cell(colspan: n-cols, inset: 0pt)[]
 
   let tbl = table(
     stroke: none,
@@ -138,7 +142,7 @@
       ..header,
       table.hline(stroke: 0.5pt),
     ),
-    ..args.pos(),
+    ..body-cells,
     table.footer(
       repeat: true,
       table.hline(stroke: 0.5pt),
@@ -154,7 +158,7 @@
       align: center,
       tbl,
       // 抵消 footer 占位 cell 的 1.8mm 下边距，最终可见间距 = note-gap
-      v(-1.8mm + note-gap),
+      v(-3mm + note-gap),
       layout(size => {
         let m = measure(width: size.width, tbl)
         box(width: m.width)[
@@ -169,10 +173,33 @@
     tbl
   }
 
+  let probe-table = table(
+    stroke: none,
+    align: align,
+    ..args.named(),
+    table.header(
+      probe-cont-cell,
+      table.hline(stroke: 0.5pt),
+      ..header,
+      table.hline(stroke: 0.5pt),
+    ),
+    ..probe-row,
+  )
+
   let fig = figure(body, caption: caption, kind: table)
+  let probe-fig = figure(probe-table, caption: caption, kind: table)
   let labeled = if label != none { [#fig#label] } else { fig }
   if breakable {
-    block(sticky: true, width: 100%, labeled)
+    // 预留“表题 + 表头 + 首行表体”的高度；若页尾放不下，则整块自动挪到下一页，
+    // 避免上一页只剩表题、下一页直接从“续表”开始。
+    layout(size => {
+      let guard-height = measure(width: size.width, probe-fig).height
+      [
+        #block(width: 100%, height: guard-height, breakable: false)[]
+        #v(-guard-height)
+        #labeled
+      ]
+    })
   } else {
     // 局部覆盖全局 breakable=true 的 show 规则
     show figure.where(kind: table): set block(breakable: false)
@@ -899,7 +926,7 @@
   set table.hline(stroke: 0.5pt)
 
   // 表格跨页：允许 figure 外层 block 分页，同时避免仅标题落在页尾
-  show figure.where(kind: table): set block(breakable: true, sticky: true)
+  show figure.where(kind: table): set block(breakable: true)
 
   // 算法
   show figure.where(kind: "algorithm"): set figure(

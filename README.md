@@ -172,7 +172,7 @@ typst compile --font-path path/to/fonts main.typ
 - `note-leading:` 表注行距，默认 `auto`（沿用环境）
 - `header:` 表头行 cells（数组形式）
 - `align:` 单值 / 每列数组 / 函数；默认 `center`
-- `breakable:` 是否允许跨页，默认 `true`
+- `breakable:` 是否允许跨页，默认 `true`；开启后会自动保护“表题 + 表头 + 首行表体”，避免页尾只剩表题、下一页直接进入续表
 - 其余命名参数（`columns`、`inset`、`fill`、`column-gutter` 等）和正文 cells 透传给底层 `table()`
 
 按列对齐：
