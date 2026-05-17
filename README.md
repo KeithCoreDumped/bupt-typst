@@ -42,7 +42,7 @@ typst compile --font-path path/to/fonts main.typ
 - 正文章节标题样式与页眉页脚
 - 图、表、公式、算法按章编号与中文引用，附录内图/表/算法按 `附图 X-Y`、`附表 X-Y`、`附算法 X-Y` 呈现
 - `bupt-table` 三线表 / 续表 helper：跨页自动重复表头并显示"续表 X-Y 标题"，支持可选表注
-- 参考文献
+- 参考文献（`gb7714-bilingual`，GB/T 7714-2015 numeric）
 - 附录
 - 附录内手工维护的缩略语表包装函数
 
@@ -65,11 +65,13 @@ typst compile --font-path path/to/fonts main.typ
 - `class`
 - `supervisor`
 - `date`
+- `bibliography-file`
 
 其中：
 
 - `title-cn` / `title-en` 用于中英文标题。
 - `author`、`student-id`、`school`、`major`、`class`、`supervisor`、`date` 当前会渲染到封面或声明页；这些字段现在自带占位默认值，按需覆盖即可。
+- `bibliography-file` 用于指定 BibTeX 文件，正文引用解析和参考文献表都会使用它。
 - `date` 建议直接传入最终显示字符串，例如 `2026 年 5 月` 或 `202X 年 6 月`。
 
 兼容性说明：
@@ -82,6 +84,7 @@ typst compile --font-path path/to/fonts main.typ
 
 - `equation-numbering-location` 可选 `right` 或 `right + bottom`，分别表示公式编号显示在公式右侧，或显示在公式下方右侧。
 - `plagiarism-check-only` 可选 `true` / `false`。设为 `true` 时只输出查重范围：篇名、中文摘要（含关键词）、英文摘要（含关键词）和正文；自动排除封面、声明页、目录、参考文献与附录。
+- `bibliography-file` 可选 `none` 或 `.bib` 文件路径。设定后会启用 `gb7714-bilingual` 的 `GB/T 7714-2015` numeric 引用与文献表。
 - `integrity-body`、`authorization-body` 可分别覆盖默认的诚信声明和论文使用授权说明正文。
 - `author-signature`、`author-sign-date`、`advisor-signature`、`advisor-sign-date` 可用于预填声明页签名与日期。
 
@@ -106,6 +109,7 @@ typst compile --font-path path/to/fonts main.typ
   class: [2021211301],
   supervisor: [李四],
   date: [2026 年 5 月],
+  bibliography-file: "reference.bib",
   abstractZH: [中文摘要。],
   keywordsZH: ("关键词1", "关键词2"),
   abstractEN: [English abstract.],
@@ -115,6 +119,8 @@ typst compile --font-path path/to/fonts main.typ
 = 绪论
 
 正文……
+
+#show: Appendix.with()
 
 = 附录1 缩略语表
 
@@ -137,6 +143,7 @@ typst compile --font-path path/to/fonts main.typ
   keywordsZH: ("关键词1", "关键词2"),
   abstractEN: [English abstract.],
   keywordsEN: ("keyword 1", "keyword 2"),
+  bibliography-file: "reference.bib",
   plagiarism-check-only: true,
 )
 ```
@@ -190,11 +197,19 @@ typst compile --font-path path/to/fonts main.typ
 
 - `cite-inline(key)` 可生成行内数字引用，适合“文献[1] 指出”这类不希望单独占据一个引用块的场景。
 - 常规 `@key` 引用和 `#cite(<key>)` 仍可继续使用。
+- 模板当前通过 `gb7714-bilingual` 生成参考文献表，默认采用 `GB/T 7714-2015` 的 numeric 风格。
+- 多个连续引用建议直接使用包提供的 `#multicite("key1", "key2")`，可自动合并为 `[1-2]` 这类形式。
+- 参考文献表位置默认由 `#show: Appendix.with()` 提供；只有在 `BUPTBachelorThesis` 传入 `bibliography-file` 时才会实际输出参考文献标题和文献表。
+- `@key` 前后的空格由源码写法决定，可按行文需要自行控制。
+- `@key` 无法稳定处理“正文正文@key正文”这类紧贴场景；如果引用后面还要继续直接接正文，请改用 `#cite-inline(<key>)` 或 `#cite(<key>, form: "prose")`。
+- `#multicite(...)` 不是原生 `cite` 元素；如果需要与前文紧贴，直接写成 `正文#multicite("a", "b")`。
 
 示例：
 
 ```typst
-文献表明该方法在多种任务上有效 #cite-inline(<wang2024>).
+Li 等人 @wang2024 提出了一种方法。
+文献#cite-inline(<wang2024>)指出该方法对初始化敏感。
+该方向已有多项研究#multicite("wang2024", "li2025")。
 ```
 
 ## 字体

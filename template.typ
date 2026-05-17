@@ -2,6 +2,7 @@
 #import "@preview/cuti:0.4.0": fakebold, show-cn-fakebold
 #import "@preview/numbly:0.1.0": numbly
 #import "@preview/algo:0.3.6": algo, code, comment, d, i
+#import "@preview/gb7714-bilingual:0.2.3": init-gb7714, gb7714-bibliography, multicite
 
 #let FONTSIZE = (
   三号: 16pt,
@@ -51,6 +52,7 @@
 #let HEADER_RULE_STROKE = 0.72pt
 #let FOOTER_TEXT_TOP = 5.95mm
 #let plagiarism-check-only-state = state("bupt-thesis-plagiarism-check-only", false)
+#let bibliography-enabled-state = state("bupt-thesis-bibliography-enabled", false)
 
 #let main-header = context {
   place(top + center, dy: HEADER_TEXT_TOP)[
@@ -256,8 +258,11 @@
   cover-title-line-length: 100.8mm,
   equation-numbering-location: right + bottom,
   plagiarism-check-only: false,
+  bibliography-file: none,
   body,
 ) = {
+  bibliography-enabled-state.update(bibliography-file != none)
+
   assert((right, right + bottom).contains(equation-numbering-location), message: "can be only right or right + bottom")
   let appendix-number(appendix, number) = "附" + str(appendix) + "-" + str(number)
   let heading-text(body) = repr(body)
@@ -731,6 +736,18 @@
     h(1em) + value
   })
 
+  show: doc => {
+    if bibliography-file != none {
+      init-gb7714.with(
+        read(bibliography-file),
+        style: "numeric",
+        version: "2015",
+      )(doc)
+    } else {
+      doc
+    }
+  }
+
   pagebreak(to: "odd", weak: true)
 
   // 标题样式
@@ -959,19 +976,8 @@
 }
 
 // 附录部分
-#let Appendix(
-  bibliographyFile: none,
-  body,
-) = {
+#let Appendix(body) = {
   context if plagiarism-check-only-state.get() {
-    if bibliographyFile != none {
-      show bibliography: it => []
-      bibliography(
-        bibliographyFile,
-        title: none,
-        style: "gb-7714-2015-numeric",
-      )
-    }
     []
   } else {
     set heading(numbering: none)
@@ -979,7 +985,7 @@
     show subheadings: set heading(outlined: false)
 
     // 参考文献
-    if bibliographyFile != none {
+    if bibliography-enabled-state.get() {
       [= 参考文献]
 
       set text(
@@ -988,12 +994,9 @@
         lang: "zh",
       )
       set par(first-line-indent: 0em)
-      bibliography(
-        bibliographyFile,
+      gb7714-bibliography(
         title: none,
-        style: "gb-7714-2015-numeric",
       )
-      show bibliography: it => {}
     }
 
     body
@@ -1024,4 +1027,4 @@
   pagebreak(to: "odd", weak: true) // 最后的空页
 }
 
-#let cite-inline(key) = cite(key, style: "numeric-inline.csl")
+#let cite-inline(key) = cite(key, form: "prose")
